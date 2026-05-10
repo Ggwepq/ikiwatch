@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;family=Source+Serif+4:wght@500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-primary-container": "#c0d5c2",
+                    "surface-variant": "#e2e3e1",
+                    "secondary": "#5a5c79",
+                    "on-secondary": "#ffffff",
+                    "secondary-container": "#dcddff",
+                    "outline": "#737872",
+                    "tertiary-fixed-dim": "#bdce89",
+                    "inverse-surface": "#2f3130",
+                    "surface-container-high": "#e8e8e6",
+                    "primary-fixed-dim": "#b7ccb9",
+                    "on-primary-fixed": "#0e1f13",
+                    "tertiary-fixed": "#d9eaa3",
+                    "secondary-fixed": "#dfe0ff",
+                    "on-error": "#ffffff",
+                    "inverse-on-surface": "#f1f1ef",
+                    "on-surface-variant": "#434843",
+                    "surface": "#f9f9f7",
+                    "primary-container": "#4a5d4e",
+                    "on-secondary-fixed-variant": "#424560",
+                    "on-secondary-fixed": "#161a32",
+                    "surface-dim": "#dadad8",
+                    "on-error-container": "#93000a",
+                    "tertiary-container": "#505e26",
+                    "on-secondary-container": "#5e617d",
+                    "on-primary": "#ffffff",
+                    "tertiary": "#394610",
+                    "primary-fixed": "#d3e8d5",
+                    "error-container": "#ffdad6",
+                    "primary": "#334537",
+                    "surface-bright": "#f9f9f7",
+                    "surface-container-highest": "#e2e3e1",
+                    "error": "#ba1a1a",
+                    "inverse-primary": "#b7ccb9",
+                    "secondary-fixed-dim": "#c2c4e5",
+                    "surface-container-lowest": "#ffffff",
+                    "on-surface": "#1a1c1b",
+                    "background": "#f9f9f7",
+                    "surface-tint": "#506354",
+                    "on-primary-fixed-variant": "#394b3d",
+                    "on-tertiary-fixed": "#161f00",
+                    "on-tertiary-container": "#c6d792",
+                    "surface-container-low": "#f4f4f2",
+                    "on-background": "#1a1c1b",
+                    "on-tertiary-fixed-variant": "#3e4c16",
+                    "outline-variant": "#c3c8c1",
+                    "on-tertiary": "#ffffff",
+                    "surface-container": "#eeeeec"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-desktop": "64px",
+                    "unit": "8px",
+                    "gutter": "24px",
+                    "margin-mobile": "24px",
+                    "container-max": "1280px"
+            },
+            "fontFamily": {
+                    "body-md": ["Manrope"],
+                    "body-lg": ["Manrope"],
+                    "headline-sm": ["Source Serif 4"],
+                    "headline-md": ["Source Serif 4"],
+                    "display-lg": ["Source Serif 4"],
+                    "label-sm": ["Manrope"],
+                    "label-md": ["Manrope"],
+                    "display-lg-mobile": ["Source Serif 4"]
+            },
+            "fontSize": {
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-sm": ["24px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                    "headline-md": ["32px", {"lineHeight": "1.3", "fontWeight": "500"}],
+                    "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "label-sm": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "label-md": ["14px", {"lineHeight": "1.2", "letterSpacing": "0.03em", "fontWeight": "600"}],
+                    "display-lg-mobile": ["36px", {"lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #f9f9f7;
+            font-family: 'Manrope', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky z-50 bg-surface/90 backdrop-blur-md border-b border-outline-variant h-20">
+<div class="flex justify-between items-center px-margin-mobile md:px-margin-desktop h-full w-full max-w-container-max mx-auto">
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-primary cursor-pointer active:opacity-80" data-icon="menu">menu</button>
+<h1 class="font-display-lg text-display-lg-mobile tracking-tighter text-primary">IKIGAI</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors duration-200" data-icon="search">search</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant cursor-pointer">
+<img alt="User profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD4j_Tve2eCcuJfd-y4RcLKuxvJlRlmtTsKI_Yz-_NgeeXu-VDBXjBwz9kixLy2idExqNKPCDhrd2c_WKNz27960w0vOlAQ88SGI6Vfzqq0H13vUZoE_UWxeMLLaag_YcWRYv4Uopy59J9FcKOlg-V63zlUXEUqnlIj465gxSEay1UexiJcJjW9KsEkxVvtMJq3F7sMBndPBGhcbGLpmcKddAJb_Q8HGfRez3wXN48nCLa-d39-hGux5NQD-x9zA0RECl_hBoJ5Acg"/>
+</div>
+</div>
+</div>
+</header>
+<main class="space-y-10">
+<!-- High-Impact Hero Section -->
+<section class="relative w-full aspect-[9/12] md:aspect-[21/9] overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="The Marshmallow Heart Hero" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwp8xYrLx9DOTsNLat3uUjZ3uBvEjJTGLowkFj82D4i9oMWlo09Ltt6SCu3mix598DGcmbACAHrN-yUK6cTp71MgMyCAafFYesb1qFktRl2K-eh6TgyBAlJNw2bx_HwODoOhR-JCpE-i_GANqsEgokbD0tXdz7tS4HJaRkZPNV89dn3AqrFxATw_h_PvvfmOUUAJVHubdT4gs2xOGWqDQXV539M9wOGdDcqQhfACqKQAOZw0fySGq_W9vxPplGA_tKR8ZNC4OyK6U"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-margin-mobile md:p-margin-desktop gap-4">
+<div class="space-y-1">
+<span class="inline-block bg-tertiary/90 text-on-tertiary px-3 py-0.5 font-label-md text-label-sm uppercase tracking-widest">Featured Story</span>
+<h2 class="font-display-lg text-4xl md:text-6xl text-white drop-shadow-lg">The Marshmallow Heart</h2>
+<p class="font-body-md text-white/80 max-w-lg line-clamp-2 md:line-clamp-none">A gentle exploration of love, loss, and the sweetness found in quiet, shared moments at dusk.</p>
+</div>
+<div class="flex gap-3 mt-2">
+<button class="bg-primary text-on-primary px-8 py-3 font-label-md text-label-md flex items-center gap-2 transition-transform active:scale-95">
+<span class="material-symbols-outlined !text-xl" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+                        WATCH NOW
+                    </button>
+<button class="bg-white/10 backdrop-blur-md text-white border border-white/30 px-4 py-3 font-label-md text-label-md flex items-center gap-2">
+<span class="material-symbols-outlined !text-xl">add</span>
+                        MY LIST
+                    </button>
+</div>
+</div>
+</section>
+<!-- Content Rows -->
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop space-y-12">
+<!-- Trending Now Carousel -->
+<section class="space-y-4">
+<div class="flex justify-between items-baseline">
+<h3 class="font-headline-sm text-primary">Trending Now</h3>
+<button class="text-on-surface-variant font-label-md text-label-sm flex items-center gap-1 hover:text-primary transition-colors">SEE ALL <span class="material-symbols-outlined !text-xs">arrow_forward_ios</span></button>
+</div>
+<div class="flex overflow-x-auto gap-4 md:gap-gutter pb-4 no-scrollbar">
+<!-- Movie Card 1 -->
+<div class="flex-shrink-0 w-36 md:w-48 group cursor-pointer">
+<div class="aspect-[2/3] overflow-hidden bg-surface-container mb-2 relative">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="Starry Night" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNQkjGdszW1dHLJTcTk-mh9KUttacwgfvmnFUMB-TPzh4eJviY1PosrTRLg_hNEKjcliPKBnkgxz2Fdc4i7m0UVzcwgtdQOxh0s6hynSvJdCCyq2g7UMomrnscjGQypVXPxOUMG0Ol96FhHtblWN5PK_w4mprgNXKF38EQJe-fbcqMILoMNbCBrsqrlpejIr9kb91s7PzUYMv-1WgKvJWy7yMOJ2gPRdojjqaU0Zqsbl5e1JaaKHDKvKPmLVoocM48vjLw-jk1ZQg"/>
+<div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-white opacity-0 group-hover:opacity-100 !text-4xl" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+</div>
+</div>
+<p class="font-label-md text-on-surface truncate">Starry Night</p>
+<p class="font-label-sm text-on-surface-variant/70">Drama • 2h 15m</p>
+</div>
+<!-- Movie Card 2 -->
+<div class="flex-shrink-0 w-36 md:w-48 group cursor-pointer">
+<div class="aspect-[2/3] overflow-hidden bg-surface-container mb-2 relative">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="Cloud Buddies" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOQBMebU4CGRc-M_H6hzKUEqupF5amoEfOlFC18KVDUL65yhtUY-DbS2j3w4d9tRmC3Y9ZU_IZVhnBm2j_Yr-wMWyu2_rvc-xRxaz2RwGFmdsUDaGY68OheS3r9K4BiGX5TJksnT63Gc8qu3i6fQiemPdMEp_x0H_asNtKSAcUdVL-eckprU_6Swe33jXohJ96hV4pkwsaAvdXzCj6f6_BPt3ZLmcREoFkR7-kihf51myh6fg1VeKUzr3hklXXHKNCeYaz-Bij0EE"/>
+<div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-white opacity-0 group-hover:opacity-100 !text-4xl" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+</div>
+</div>
+<p class="font-label-md text-on-surface truncate">Cloud Buddies</p>
+<p class="font-label-sm text-on-surface-variant/70">Animation • Season 1</p>
+</div>
+<!-- Movie Card 3 -->
+<div class="flex-shrink-0 w-36 md:w-48 group cursor-pointer">
+<div class="aspect-[2/3] overflow-hidden bg-surface-container mb-2 relative">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="Sweet Bakes" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLBSd0-Bhrc5qcM8vTjzW8ym_CK_Zi37HXgF1XtsP5tvHhiu_uhkZO7dIlSR8BAEoNzPr3lz4JQVtokdPAiIXbzLJO-vR9ZUZkI7jwPLHzIYTforJIbzztjhkxmxJwkU5bjd1RjkqWgh__Fl52xhh2OV_ii87pOuNOg3k4Fd8jrhbabdcWcVX7tmHmnoy8tNFs34VpZlGmyOlAeI6JCHBB7BOMFfy7vaXODmvPZRS9zxO9z0Qg9R9PYYnKnDp9PTqi9foLDUfMzEc"/>
+<div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-white opacity-0 group-hover:opacity-100 !text-4xl" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+</div>
+</div>
+<p class="font-label-md text-on-surface truncate">Sweet Bakes</p>
+<p class="font-label-sm text-on-surface-variant/70">Reality • Episode 4</p>
+</div>
+<!-- Movie Card 4 -->
+<div class="flex-shrink-0 w-36 md:w-48 group cursor-pointer">
+<div class="aspect-[2/3] overflow-hidden bg-surface-container mb-2 relative">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="Bloom" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA5TJIJ3Gnz-SLZJD_PjjOvipXvwNYKm6vP8sG3H7Wr9-huPoLwcXM8TBPbhRWRGrg0xHrfiPzyBhrXd6b1RQDmZggX6wJBaq1v6mQE2Xfyit9-29AFG7GVdP8Nrg2mpTchLhPkfZ-sQWROOCXA4V9OG4VgBYC6UxyC2rUFSH_dSh6PxAmYotMNm67W5xBsr1qtkqsSKlLQA1RtB3WTVUoC3dlGwMQ1A5M5hpBAuIKHSi1NKA1-pMBqGXXaWJ4YtAgJjMWts9zBzAk"/>
+<div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-white opacity-0 group-hover:opacity-100 !text-4xl" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+</div>
+</div>
+<p class="font-label-md text-on-surface truncate">Bloom</p>
+<p class="font-label-sm text-on-surface-variant/70">Documentary • 1h 40m</p>
+</div>
+</div>
+</section>
+<!-- Top Rated Carousel -->
+<section class="space-y-4">
+<div class="flex justify-between items-baseline">
+<h3 class="font-headline-sm text-primary">Top Rated</h3>
+<button class="text-on-surface-variant font-label-md text-label-sm flex items-center gap-1 hover:text-primary transition-colors">SEE ALL <span class="material-symbols-outlined !text-xs">arrow_forward_ios</span></button>
+</div>
+<div class="flex overflow-x-auto gap-4 md:gap-gutter pb-4 no-scrollbar">
+<div class="flex-shrink-0 w-36 md:w-48 group cursor-pointer">
+<div class="aspect-[2/3] overflow-hidden bg-surface-container mb-2">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="Tea Moments" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzBpOJt5MnQpReHLYhnHsc5cDOh6dXA-6-oYDsYNTrwhQP3b_WT6P_h3UeFQVxQfgDIkuWdelX0ABsRKf7EgE7tfWxzGAihl3j_ZHW1Lf7K9AV_gHsocMZ5pRFNovn-IAo_t5sdwc2q_s9kiwris6Aq1qjdkLpzdE9xT6KassSUQ8lPtduorWfl9HZc1upkerttMym7CpHwRRfEvfaVAJgCpkAAAwAQeUCbRyyTnauVNXDtrrfjngrAnPRHFKciItjieXyKGBKmCo"/>
+</div>
+<p class="font-label-md text-on-surface truncate">Ceremony</p>
+<p class="font-label-sm text-on-surface-variant/70">Art • 9.8 Rating</p>
+</div>
+<div class="flex-shrink-0 w-36 md:w-48 group cursor-pointer">
+<div class="aspect-[2/3] overflow-hidden bg-surface-container mb-2">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="Sweet Treat" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJrJWNCUhfAoko584WMkJNuVlCmrZ4N4iR00-MtrNLCrLGW1EpzZ3hFTPTgjyYl0lyxZ-Gg8yCuVJouxPPxGzDQAJkxxbkGX0LLdTHO6dTkv0BU-2wk1vAoyOP1q9T4qEpJi09XWgNEJuZXtHaNdovCj3UFY29UE7MOqUc1rQhlRAsECgoZDxMHVT1y8jy2ySZBOpKRh0eQUw-89qqwMip1tCUFyGsbKWrc35mLtsWEMcBrwAZo6eFgSQ6BsmK7hsMsH9uSUzdRI4"/>
+</div>
+<p class="font-label-md text-on-surface truncate">Macaron Dreams</p>
+<p class="font-label-sm text-on-surface-variant/70">Short • 9.5 Rating</p>
+</div>
+<div class="flex-shrink-0 w-36 md:w-48 group cursor-pointer">
+<div class="aspect-[2/3] overflow-hidden bg-surface-container mb-2">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="Field Study" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDy4VZ0IIxBr5vR-yucYwfNunIUnAeip9u96J6eCJy925_Vwj4J-Y-aJPTxEbOBge7vFT_CUDTi9mKnSlOghtLpPJL1fcf0IKmIlAV2KhuxsKz0L-WGHxnCCOIwRoney0UlAmF3cRIvICLIN6S5Nhpoy2sI6RNsikPrQATMkvIONh1L2wEoPq5GtM-6Dalj7TeovTxpcWZt1iKJN-Kzam5jPzVV8oe1rp-Esr_nk9vMTPc1vRMOpTgYUpEF5Zl4gaezyVuWjLHWF-k"/>
+</div>
+<p class="font-label-md text-on-surface truncate">Golden Meadows</p>
+<p class="font-label-sm text-on-surface-variant/70">Nature • 9.2 Rating</p>
+</div>
+</div>
+</section>
+<!-- New Releases Carousel -->
+<section class="space-y-4">
+<div class="flex justify-between items-baseline">
+<h3 class="font-headline-sm text-primary">New Releases</h3>
+<button class="text-on-surface-variant font-label-md text-label-sm flex items-center gap-1 hover:text-primary transition-colors">SEE ALL <span class="material-symbols-outlined !text-xs">arrow_forward_ios</span></button>
+</div>
+<div class="flex overflow-x-auto gap-4 md:gap-gutter pb-4 no-scrollbar">
+<div class="flex-shrink-0 w-36 md:w-48 group cursor-pointer">
+<div class="aspect-[2/3] overflow-hidden bg-surface-container mb-2 relative">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA5TJIJ3Gnz-SLZJD_PjjOvipXvwNYKm6vP8sG3H7Wr9-huPoLwcXM8TBPbhRWRGrg0xHrfiPzyBhrXd6b1RQDmZggX6wJBaq1v6mQE2Xfyit9-29AFG7GVdP8Nrg2mpTchLhPkfZ-sQWROOCXA4V9OG4VgBYC6UxyC2rUFSH_dSh6PxAmYotMNm67W5xBsr1qtkqsSKlLQA1RtB3WTVUoC3dlGwMQ1A5M5hpBAuIKHSi1NKA1-pMBqGXXaWJ4YtAgJjMWts9zBzAk"/>
+<span class="absolute top-2 left-2 bg-primary text-on-primary text-[10px] px-1.5 py-0.5 rounded-sm font-bold uppercase tracking-tighter">NEW</span>
+</div>
+<p class="font-label-md text-on-surface truncate">Floral Path</p>
+<p class="font-label-sm text-on-surface-variant/70">Romance • Just Added</p>
+</div>
+<div class="flex-shrink-0 w-36 md:w-48 group cursor-pointer">
+<div class="aspect-[2/3] overflow-hidden bg-surface-container mb-2 relative">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNQkjGdszW1dHLJTcTk-mh9KUttacwgfvmnFUMB-TPzh4eJviY1PosrTRLg_hNEKjcliPKBnkgxz2Fdc4i7m0UVzcwgtdQOxh0s6hynSvJdCCyq2g7UMomrnscjGQypVXPxOUMG0Ol96FhHtblWN5PK_w4mprgNXKF38EQJe-fbcqMILoMNbCBrsqrlpejIr9kb91s7PzUYMv-1WgKvJWy7yMOJ2gPRdojjqaU0Zqsbl5e1JaaKHDKvKPmLVoocM48vjLw-jk1ZQg"/>
+<span class="absolute top-2 left-2 bg-primary text-on-primary text-[10px] px-1.5 py-0.5 rounded-sm font-bold uppercase tracking-tighter">NEW</span>
+</div>
+<p class="font-label-md text-on-surface truncate">Night Walk</p>
+<p class="font-label-sm text-on-surface-variant/70">Mystery • Just Added</p>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center py-4 bg-surface/95 backdrop-blur-md border-t border-outline-variant">
+<!-- Home (Active) -->
+<a class="flex flex-col items-center justify-center text-primary transition-all duration-300 active:scale-95" href="#">
+<span class="material-symbols-outlined !text-2xl" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-md text-[10px] mt-1 uppercase tracking-wider font-bold">Home</span>
+</a>
+<!-- Movies -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary transition-all duration-300 active:scale-95" href="#">
+<span class="material-symbols-outlined !text-2xl">movie</span>
+<span class="font-label-md text-[10px] mt-1 uppercase tracking-wider">Movies</span>
+</a>
+<!-- My List -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary transition-all duration-300 active:scale-95" href="#">
+<span class="material-symbols-outlined !text-2xl">add_circle</span>
+<span class="font-label-md text-[10px] mt-1 uppercase tracking-wider">My List</span>
+</a>
+<!-- Categories -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary transition-all duration-300 active:scale-95" href="#">
+<span class="material-symbols-outlined !text-2xl">grid_view</span>
+<span class="font-label-md text-[10px] mt-1 uppercase tracking-wider">Genres</span>
+</a>
+</nav>
+</body></html>

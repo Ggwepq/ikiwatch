@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Ikigai Library - Serene Viewing</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;family=Source+Serif+4:wght@500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "on-primary-container": "#c0d5c2",
+                "surface-variant": "#e2e3e1",
+                "secondary": "#5a5c79",
+                "on-secondary": "#ffffff",
+                "secondary-container": "#dcddff",
+                "outline": "#737872",
+                "tertiary-fixed-dim": "#bdce89",
+                "inverse-surface": "#2f3130",
+                "surface-container-high": "#e8e8e6",
+                "primary-fixed-dim": "#b7ccb9",
+                "on-primary-fixed": "#0e1f13",
+                "tertiary-fixed": "#d9eaa3",
+                "secondary-fixed": "#dfe0ff",
+                "on-error": "#ffffff",
+                "inverse-on-surface": "#f1f1ef",
+                "on-surface-variant": "#434843",
+                "surface": "#f9f9f7",
+                "primary-container": "#4a5d4e",
+                "on-secondary-fixed-variant": "#424560",
+                "on-secondary-fixed": "#161a32",
+                "surface-dim": "#dadad8",
+                "on-error-container": "#93000a",
+                "tertiary-container": "#505e26",
+                "on-secondary-container": "#5e617d",
+                "on-primary": "#ffffff",
+                "tertiary": "#394610",
+                "primary-fixed": "#d3e8d5",
+                "error-container": "#ffdad6",
+                "primary": "#334537",
+                "surface-bright": "#f9f9f7",
+                "surface-container-highest": "#e2e3e1",
+                "error": "#ba1a1a",
+                "inverse-primary": "#b7ccb9",
+                "secondary-fixed-dim": "#c2c4e5",
+                "surface-container-lowest": "#ffffff",
+                "on-surface": "#1a1c1b",
+                "background": "#f9f9f7",
+                "surface-tint": "#506354",
+                "on-primary-fixed-variant": "#394b3d",
+                "on-tertiary-fixed": "#161f00",
+                "on-tertiary-container": "#c6d792",
+                "surface-container-low": "#f4f4f2",
+                "on-background": "#1a1c1b",
+                "on-tertiary-fixed-variant": "#3e4c16",
+                "outline-variant": "#c3c8c1",
+                "on-tertiary": "#ffffff",
+                "surface-container": "#eeeeec"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+        },
+        "spacing": {
+                "margin-desktop": "64px",
+                "unit": "8px",
+                "gutter": "24px",
+                "margin-mobile": "24px",
+                "container-max": "1280px"
+        },
+        "fontFamily": {
+                "body-md": ["Manrope"],
+                "body-lg": ["Manrope"],
+                "headline-sm": ["Source Serif 4"],
+                "headline-md": ["Source Serif 4"],
+                "display-lg": ["Source Serif 4"],
+                "label-sm": ["Manrope"],
+                "label-md": ["Manrope"],
+                "display-lg-mobile": ["Source Serif 4"]
+        },
+        "fontSize": {
+                "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                "headline-sm": ["24px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                "headline-md": ["32px", {"lineHeight": "1.3", "fontWeight": "500"}],
+                "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                "label-sm": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                "label-md": ["14px", {"lineHeight": "1.2", "letterSpacing": "0.03em", "fontWeight": "600"}],
+                "display-lg-mobile": ["36px", {"lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+        }
+      },
+    },
+  }
+</script>
+<style>
+    body { font-family: 'Manrope', sans-serif; background-color: #f9f9f7; }
+    h1, h2, h3, h4 { font-family: 'Source Serif 4', serif; }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .progress-bar { height: 4px; border-radius: 2px; background: #e2e3e1; overflow: hidden; }
+    .progress-bar-inner { height: 100%; background: #334537; }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    .video-thumbnail::after {
+        content: '';
+        position: absolute;
+        bottom: 12px;
+        right: 12px;
+        background: rgba(0,0,0,0.6);
+        border-radius: 4px;
+        padding: 2px 6px;
+        color: white;
+        font-size: 10px;
+        font-family: 'Manrope', sans-serif;
+        font-weight: 600;
+    }
+    .duration-12::after { content: '12:05'; }
+    .duration-45::after { content: '45:30'; }
+    .duration-24::after { content: '24:12'; }
+</style>
+</head>
+<body class="bg-background text-on-background min-h-screen pb-32">
+<!-- Top App Bar -->
+<header class="bg-surface dark:bg-inverse-surface border-b border-outline-variant dark:border-outline w-full top-0 sticky z-50 transition-all duration-200">
+<div class="flex justify-between items-center px-margin-mobile md:px-margin-desktop h-20 w-full max-w-container-max mx-auto">
+<div class="flex items-center gap-4 cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim">menu</span>
+<h1 class="font-display-lg text-display-lg-mobile tracking-tighter text-primary dark:text-primary-fixed">IKIGAI</h1>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer">search</span>
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center overflow-hidden cursor-pointer active:opacity-80 border-2 border-surface-container-highest">
+<img alt="User profile avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCirKYEOkiEsXUXXASHk26ikmwXfdimlo2ejDfPO6q3bagfSP_P9nW1r_ich7GEojaD79rfxMYWe1EyetOIj4YRpI8nPe5cyDbEYG7SSDoBGy72UOcjzHyoCQZ1bm6IIVOTcuXALmBwp1hhHMuCuy23C2v3g7RyiH7kSOGBpF15NIIBaYt_yWR1r1x68Hj1v-DdbxyDyIXNJw84dRU9Ma4tEHB-70bezJM7hmIBWYY-GLw07KBCoZeFrYvKpDsiQ5eq01H-z5ynrQ0"/>
+</div>
+</div>
+</div>
+</header>
+<main class="pt-8 px-margin-mobile md:px-margin-desktop space-y-12 max-w-container-max mx-auto">
+<!-- Continue Watching Section -->
+<section>
+<div class="flex items-center justify-between mb-8">
+<h2 class="font-headline-md text-headline-md text-primary">Continue Watching</h2>
+<button class="font-label-md text-label-md text-primary hover:underline transition-all">See All</button>
+</div>
+<div class="flex gap-gutter overflow-x-auto pb-4 scrollbar-hide snap-x">
+<!-- Episode 1 -->
+<div class="flex-none w-72 snap-start">
+<div class="group cursor-pointer">
+<div class="relative aspect-video rounded-xl overflow-hidden bg-surface-container-high transition-all duration-300 group-hover:ring-2 group-hover:ring-primary/20">
+<img class="w-full h-full object-cover" data-alt="Enchanted forest landscape" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyNi4Zvzac3VcoDActxDPjiqeFK52xYTo0O-evkYF6HIq_eYWfdYf_dOZbfZW-Gb4wIiq_BUKAsDVKB534AD6lUjTtTkPIZZJaaLYBOYUo92VnwvyoRk0cQFOHKSQCWbq8yAQ3WQbfV8n7c1H2GywmcW0pSdHFs_eQiFjSgb_q2gNIHJyJwdFeiJDPbZzEMoOyKVjJHWBY9ZIkkYgCbpKCJnH2YGvIEl4uqe8-Uk6SuK2ZyCk8_LZBYUsN_neK3klwpKmzgThPRcs"/>
+<div class="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-4xl opacity-0 group-hover:opacity-100 transition-opacity">play_circle</span>
+</div>
+<div class="absolute bottom-0 left-0 right-0 h-1 bg-surface-container-highest">
+<div class="h-full bg-primary w-3/4"></div>
+</div>
+</div>
+<div class="mt-3">
+<h3 class="font-headline-sm text-base text-on-surface line-clamp-1">Moonlight Whiskers</h3>
+<p class="font-body-md text-on-surface-variant text-sm">S1 : E4 • 12m left</p>
+</div>
+</div>
+</div>
+<!-- Episode 2 -->
+<div class="flex-none w-72 snap-start">
+<div class="group cursor-pointer">
+<div class="relative aspect-video rounded-xl overflow-hidden bg-surface-container-high transition-all duration-300 group-hover:ring-2 group-hover:ring-primary/20">
+<img class="w-full h-full object-cover" data-alt="Bakery close up" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7KGEiEnA_FBSmEtlPzAg6ol0rWVHxcdQ2J6vVYUSjQ0PS6AmnhsALz64Nj9Ee6qXLhgd6E6mz6AWU2tebAtYfBgI9W26VI7IcMGvgSSnqjhrB6ukNDww2qE_IuBwMdfzXScJvHnt4v1A7h60nkOHKEzGa_jotCD9BMWfWTGtu4_QgJHQEJJATSomdGEPqRE7fwK3oECY5CW47_XGpZOiB1MiAIt6fr8dmL5Cpr-E7KZcYFfqnaOW36eUnt12AyFkGqpHJ6hbTCUA"/>
+<div class="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-4xl opacity-0 group-hover:opacity-100 transition-opacity">play_circle</span>
+</div>
+<div class="absolute bottom-0 left-0 right-0 h-1 bg-surface-container-highest">
+<div class="h-full bg-primary w-1/2"></div>
+</div>
+</div>
+<div class="mt-3">
+<h3 class="font-headline-sm text-base text-on-surface line-clamp-1">Sweet Treats Journey</h3>
+<p class="font-body-md text-on-surface-variant text-sm">S2 : E1 • 24m left</p>
+</div>
+</div>
+</div>
+<!-- Episode 3 -->
+<div class="flex-none w-72 snap-start">
+<div class="group cursor-pointer">
+<div class="relative aspect-video rounded-xl overflow-hidden bg-surface-container-high transition-all duration-300 group-hover:ring-2 group-hover:ring-primary/20">
+<img class="w-full h-full object-cover" data-alt="Clouds and sky" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBc9YysssrL31uAjWRabNb_YGkRmQAy6SelVpis1ci1gyzk50am8-4jHCnkYiuaIi0TJkley9zgomg6UOVnmN2kmsMutzB_K1Qrx4gxkeSRisXGlYO3ivH--pLpEUtNtvSAJH0l2l0vF7bQBtspHDXER8xlzFWhbHJdBzYoU2bP-KDHcuBcph6lQZ2xTebKlL5fKFjOOrAXwJP0K56HF_kdTwNi6uFUax9io4XNMp3qCNjY7f5HpF7CItOFOJTTqgWVYx6aLUVMs5A"/>
+<div class="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-4xl opacity-0 group-hover:opacity-100 transition-opacity">play_circle</span>
+</div>
+<div class="absolute bottom-0 left-0 right-0 h-1 bg-surface-container-highest">
+<div class="h-full bg-primary w-1/5"></div>
+</div>
+</div>
+<div class="mt-3">
+<h3 class="font-headline-sm text-base text-on-surface line-clamp-1">Cloud Catcher</h3>
+<p class="font-body-md text-on-surface-variant text-sm">S1 : E2 • 45m left</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- My Watchlist / Library Section -->
+<section class="space-y-8">
+<div class="flex items-center justify-between">
+<h2 class="font-headline-md text-headline-md text-primary">My Library</h2>
+<div class="flex gap-2">
+<button class="p-2 text-primary bg-primary-container/20 rounded-full transition-colors">
+<span class="material-symbols-outlined">grid_view</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">list</span>
+</button>
+</div>
+</div>
+<!-- Refined Tab Navigation -->
+<div class="flex border-b border-outline-variant">
+<button class="px-6 py-3 border-b-2 border-primary text-primary font-label-md transition-all">All</button>
+<button class="px-6 py-3 border-b-2 border-transparent text-on-surface-variant hover:text-on-surface font-label-md transition-all">Movies</button>
+<button class="px-6 py-3 border-b-2 border-transparent text-on-surface-variant hover:text-on-surface font-label-md transition-all">Series</button>
+<button class="px-6 py-3 border-b-2 border-transparent text-on-surface-variant hover:text-on-surface font-label-md transition-all">Downloaded</button>
+</div>
+<!-- Watchlist Grid -->
+<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-gutter">
+<!-- Movie 1 -->
+<div class="group cursor-pointer">
+<div class="relative video-thumbnail duration-45 aspect-[2/3] rounded-xl overflow-hidden bg-surface-container-high transition-transform duration-300 group-hover:-translate-y-1">
+<img class="w-full h-full object-cover" data-alt="Starlight Gala movie poster" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCS2PjjTT5U3R8oVWH1-6VGOAv4mRIiPqWAvNLmAt8vQitYYO0lRo_EcuQYXzvFgR_4-o0qdUX7WCgDVXgTzxWfVnm-QSnmWz9lCf2RCNpMC4djRdZd3K8J2F3Xvmpj0N1CbhX1OIkeXWB-lMWEQwkFGZ7kVygOVEvfGCID4TT58irwvA0nEyhwBFbyucHDKLVPJ0lbGXJtcONUwRmPRf0A8ly12MlCpkmoXJU4B9gwa_gLR0ky0oslxMjCLhlCdIC-M6tz0-2yJPA"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+<span class="material-symbols-outlined text-white">add_circle</span>
+</div>
+</div>
+<div class="mt-4">
+<h4 class="font-headline-sm text-base text-on-surface truncate">Starlight Gala</h4>
+<div class="flex items-center gap-2 mt-1">
+<span class="px-1.5 py-0.5 bg-surface-container text-[10px] font-bold text-on-surface-variant rounded">4K</span>
+<p class="font-body-md text-sm text-on-surface-variant">Movie</p>
+</div>
+</div>
+</div>
+<!-- Series 1 -->
+<div class="group cursor-pointer">
+<div class="relative video-thumbnail duration-24 aspect-[2/3] rounded-xl overflow-hidden bg-surface-container-high transition-transform duration-300 group-hover:-translate-y-1">
+<img class="w-full h-full object-cover" data-alt="Echo Valley TV series poster" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDBqymK6zBpuEqWcbpMom4CYnB5ZdUHxRfkqRgjQoDu30ZVp6-Ls049pja8bsQBf1rum94s-itWpp_KV4oRQfYT5KOwyTH24u80BNpJUDgFI2-Gcf0TXPbHQNkqb7pWKzwTLFAZhx9pC4IPByns13t_GWAH47HuQF67h8CKjqoeufHSbW4FKUZMkxzo_6OCCsaNhvWXGzUeWBdZRG5TQXydKZvCKb6X7K5YUJ7-ZkEpwiAjUAHowRCH-JH21Ls9_xBQnykqu4jPL1s"/>
+<div class="absolute top-2 right-2 px-2 py-1 bg-primary text-on-primary text-[10px] font-bold rounded-full">NEW EPISODE</div>
+</div>
+<div class="mt-4">
+<h4 class="font-headline-sm text-base text-on-surface truncate">Echo Valley</h4>
+<div class="flex items-center gap-2 mt-1">
+<span class="px-1.5 py-0.5 bg-surface-container text-[10px] font-bold text-on-surface-variant rounded">HD</span>
+<p class="font-body-md text-sm text-on-surface-variant">TV Series</p>
+</div>
+</div>
+</div>
+<!-- Documentary 1 -->
+<div class="group cursor-pointer">
+<div class="relative video-thumbnail duration-45 aspect-[2/3] rounded-xl overflow-hidden bg-surface-container-high transition-transform duration-300 group-hover:-translate-y-1">
+<img class="w-full h-full object-cover" data-alt="Bloom Town documentary poster" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-5_6W1zxRv3z6myjFwbkgHAJC-JmvsVXxsJerKWXwaxc-CM0YyuUGKA_uXu88SdyQLlMlo4uQGkX8oqA6HpRsYAiMKTmCpOVUnYfiLzBa7a0L6SMxo1FYz6bV_wcKgfBoApxwFWU4MCvvPqwtu_HsJ3v6dYuXhpx2wzQ8ENDXY45PG7UJWOmfBdPlVEa0OshBIFDNNiWAhB5zIMyojjD2Cpcea7nJ5am7c-o8jCWAWekUXwXCGySJO84GCo7ZqFI78r-CZfXKyQo"/>
+<div class="absolute bottom-2 left-2 p-1.5 bg-surface/80 backdrop-blur rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-primary text-sm">download</span>
+</div>
+</div>
+<div class="mt-4">
+<h4 class="font-headline-sm text-base text-on-surface truncate">Bloom Town</h4>
+<p class="font-body-md text-sm text-on-surface-variant mt-1">Documentary</p>
+</div>
+</div>
+<!-- Anime 1 -->
+<div class="group cursor-pointer">
+<div class="relative video-thumbnail duration-24 aspect-[2/3] rounded-xl overflow-hidden bg-surface-container-high transition-transform duration-300 group-hover:-translate-y-1">
+<img class="w-full h-full object-cover" data-alt="Nebula Pups anime poster" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFuUFtuoERInaVIDYcDzNNEyNuBZSnhL4uQ0pV3a6Uo99lOaM3Ro6VSkNzqM8JQ5FGQgwx9W0INtc58HUfmax8A6n56mCDHvuSW4Gn4HtU1VVaraOMat_rL-CCA97b0VkM870WCfTvpmegp_oH00aFXSkGVbA-VTMlB5hiGoaKK69XvxPdHPLmkmAh1lHq8yGQ0OPWCqxE7pKWfeATGhvZ2oK4FLPjRbwAG6eGr0yJfG6JYmbQ-ySLkUvITGsGUOQZekknt6AWpu0"/>
+</div>
+<div class="mt-4">
+<h4 class="font-headline-sm text-base text-on-surface truncate">Nebula Pups</h4>
+<p class="font-body-md text-sm text-on-surface-variant mt-1">Anime</p>
+</div>
+</div>
+<!-- Experimental 1 -->
+<div class="group cursor-pointer">
+<div class="relative video-thumbnail duration-12 aspect-[2/3] rounded-xl overflow-hidden bg-surface-container-high transition-transform duration-300 group-hover:-translate-y-1">
+<img class="w-full h-full object-cover" data-alt="Dream Flow experimental poster" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVU8TfAcPQKxPR5-Ob5KlGfUUQJlBMO2v-GbFuUrct1SKfA8je8vavpInsY1iLgdmx4spl1t93zsofvS-wsELZLlOEAp0lOWAa6WXxS5TF2GmPdSZtkpkxC9KmZ95zh54tMXrAyNY5rAhTqU7SkpAeMULOmOP2i8fMfc7FAGS8vLzO_mfOOWQXL-_GAv7_NialPAXb3aan5kbJJms0v0tVQW0yNiXHPmD0WIbkUneIIHwDECuWPlhmBMfyf1DMqBWdyD4KFeB12Tw"/>
+</div>
+<div class="mt-4">
+<h4 class="font-headline-sm text-base text-on-surface truncate">Dream Flow</h4>
+<p class="font-body-md text-sm text-on-surface-variant mt-1">Experimental</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Nav Bar -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center py-4 bg-surface dark:bg-inverse-surface border-t border-outline-variant shadow-lg">
+<button class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 hover:opacity-100 transition-all px-4 py-2 active:scale-95">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-md text-label-md mt-1">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 hover:opacity-100 transition-all px-4 py-2 active:scale-95">
+<span class="material-symbols-outlined">explore</span>
+<span class="font-label-md text-label-md mt-1">Discover</span>
+</button>
+<button class="flex flex-col items-center justify-center text-primary transition-all duration-300 active:scale-95">
+<div class="relative">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">video_library</span>
+<div class="absolute -top-1 -right-1 w-2 h-2 bg-error rounded-full border-2 border-surface"></div>
+</div>
+<span class="font-label-md text-label-md mt-1 font-bold">Library</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 hover:opacity-100 transition-all px-4 py-2 active:scale-95">
+<span class="material-symbols-outlined">self_improvement</span>
+<span class="font-label-md text-label-md mt-1">Mindset</span>
+</button>
+</nav>
+</body></html>

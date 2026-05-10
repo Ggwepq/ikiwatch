@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;family=Source+Serif+4:wght@500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-primary-container": "#c0d5c2",
+                    "surface-variant": "#e2e3e1",
+                    "secondary": "#5a5c79",
+                    "on-secondary": "#ffffff",
+                    "secondary-container": "#dcddff",
+                    "outline": "#737872",
+                    "tertiary-fixed-dim": "#bdce89",
+                    "inverse-surface": "#2f3130",
+                    "surface-container-high": "#e8e8e6",
+                    "primary-fixed-dim": "#b7ccb9",
+                    "on-primary-fixed": "#0e1f13",
+                    "tertiary-fixed": "#d9eaa3",
+                    "secondary-fixed": "#dfe0ff",
+                    "on-error": "#ffffff",
+                    "inverse-on-surface": "#f1f1ef",
+                    "on-surface-variant": "#434843",
+                    "surface": "#f9f9f7",
+                    "primary-container": "#4a5d4e",
+                    "on-secondary-fixed-variant": "#424560",
+                    "on-secondary-fixed": "#161a32",
+                    "surface-dim": "#dadad8",
+                    "on-error-container": "#93000a",
+                    "tertiary-container": "#505e26",
+                    "on-secondary-container": "#5e617d",
+                    "on-primary": "#ffffff",
+                    "tertiary": "#394610",
+                    "primary-fixed": "#d3e8d5",
+                    "error-container": "#ffdad6",
+                    "primary": "#334537",
+                    "surface-bright": "#f9f9f7",
+                    "surface-container-highest": "#e2e3e1",
+                    "error": "#ba1a1a",
+                    "inverse-primary": "#b7ccb9",
+                    "secondary-fixed-dim": "#c2c4e5",
+                    "surface-container-lowest": "#ffffff",
+                    "on-surface": "#1a1c1b",
+                    "background": "#f9f9f7",
+                    "surface-tint": "#506354",
+                    "on-primary-fixed-variant": "#394b3d",
+                    "on-tertiary-fixed": "#161f00",
+                    "on-tertiary-container": "#c6d792",
+                    "surface-container-low": "#f4f4f2",
+                    "on-background": "#1a1c1b",
+                    "on-tertiary-fixed-variant": "#3e4c16",
+                    "outline-variant": "#c3c8c1",
+                    "on-tertiary": "#ffffff",
+                    "surface-container": "#eeeeec"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-desktop": "64px",
+                    "unit": "8px",
+                    "gutter": "24px",
+                    "margin-mobile": "24px",
+                    "container-max": "1280px"
+            },
+            "fontFamily": {
+                    "body-md": ["Manrope"],
+                    "body-lg": ["Manrope"],
+                    "headline-sm": ["Source Serif 4"],
+                    "headline-md": ["Source Serif 4"],
+                    "display-lg": ["Source Serif 4"],
+                    "label-sm": ["Manrope"],
+                    "label-md": ["Manrope"],
+                    "display-lg-mobile": ["Source Serif 4"]
+            },
+            "fontSize": {
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-sm": ["24px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                    "headline-md": ["32px", {"lineHeight": "1.3", "fontWeight": "500"}],
+                    "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "label-sm": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "label-md": ["14px", {"lineHeight": "1.2", "letterSpacing": "0.03em", "fontWeight": "600"}],
+                    "display-lg-mobile": ["36px", {"lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #f9f9f7;
+            font-family: 'Manrope', sans-serif;
+        }
+        h1, h2, h3, h4 {
+            font-family: 'Source Serif 4', serif;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background selection:bg-primary-fixed min-h-screen">
+<!-- TopAppBar -->
+<nav class="w-full top-0 sticky z-50 bg-surface dark:bg-inverse-surface border-b border-outline-variant dark:border-outline">
+<div class="flex justify-between items-center px-margin-mobile md:px-margin-desktop h-20 w-full max-w-container-max mx-auto">
+<div class="flex items-center gap-4 cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim">menu</span>
+<span class="font-display-lg text-display-lg-mobile tracking-tighter text-primary dark:text-primary-fixed">IKIGAI</span>
+</div>
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full overflow-hidden border border-outline-variant cursor-pointer active:opacity-80">
+<img alt="User profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDK2RaKGEccLOC9PfkXCAzTIqVraz3K5gn80TMR9OqWyZkYfe9Yglk-GmwZSXq51H9MXaM_QASg4JSjARC9Ho36mTpyMQPe63uSdL-nkP10tlEhKGReH1OUJHCJwOsdXVT5zf8tL6KsRKKoofJcv8_qdbQ9d7f5AMMd3iJMdYmm5HR2IT7HbfEt1a5v48ZNIZP5fzZi7xTH3dCv7Ur0zDuMJxFsOhlzyXtAW4vjGWd_-hDWJEEfnNBn31SjFQ3-FepvFzI0aJS-2Hg"/>
+</div>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="pt-12 pb-32 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto space-y-16">
+<!-- Clean Search Bar -->
+<section class="max-w-2xl mx-auto space-y-6">
+<div class="relative">
+<input class="w-full h-14 pl-12 pr-4 rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface font-body-md focus:ring-1 focus:ring-primary focus:border-primary transition-all placeholder:text-outline-variant/60 shadow-sm" placeholder="Search for originals, movies, or shows..." type="text"/>
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">search</span>
+</div>
+<div class="flex flex-wrap justify-center gap-3">
+<span class="font-label-md text-outline py-1.5">Trending:</span>
+<button class="bg-surface-container text-on-surface-variant font-label-md px-4 py-1.5 rounded-lg border border-outline-variant hover:bg-primary hover:text-on-primary transition-all">Quietude</button>
+<button class="bg-surface-container text-on-surface-variant font-label-md px-4 py-1.5 rounded-lg border border-outline-variant hover:bg-primary hover:text-on-primary transition-all">Nature Docs</button>
+<button class="bg-surface-container text-on-surface-variant font-label-md px-4 py-1.5 rounded-lg border border-outline-variant hover:bg-primary hover:text-on-primary transition-all">Tea Rituals</button>
+</div>
+</section>
+<!-- Content Categories Section -->
+<section class="space-y-8">
+<div class="flex items-end justify-between border-b border-outline-variant pb-2">
+<h2 class="font-headline-md text-headline-md text-primary">Content Categories</h2>
+<a class="font-label-md text-secondary hover:text-primary transition-colors underline underline-offset-4" href="#">All Genres</a>
+</div>
+<!-- Categories Grid -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+<!-- Originals -->
+<div class="group cursor-pointer">
+<div class="relative aspect-video md:aspect-[4/5] overflow-hidden rounded-lg bg-surface-container-high border border-outline-variant transition-all duration-500 hover:shadow-lg">
+<img alt="Ikigai Originals" class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGhU9o15tUPYLSHt-RWFBlLRp6WOdJhFdLF33JcRy78Xa2G0iZhv_-BxlyUi4kzRlk3jGJFekQ2koOrztPi552cYr4_y308h1uPNgQ-r4k9EI0lHiBsa0wYNijx9ik6BUvc0o_7GfpRZ9IEUBCKgvTrN9q6gV5MpQde2FC1ZIPazvH262XZpXHfYsMjpr2KWdFLtPauUo0SwKvXsgT_46dMZAkyp2fJ_XAt1X3H8yU5MtFaxPLTZ8HJl_mx4dImI6DWrJ4OlFSem8"/>
+<div class="absolute inset-0 bg-primary/20 group-hover:bg-transparent transition-colors"></div>
+<div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/60 to-transparent">
+<h3 class="font-headline-sm text-white">Originals</h3>
+</div>
+</div>
+</div>
+<!-- Cinema -->
+<div class="group cursor-pointer">
+<div class="relative aspect-video md:aspect-[4/5] overflow-hidden rounded-lg bg-tertiary-container border border-outline-variant transition-all duration-500 hover:shadow-lg">
+<img alt="Cinema" class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoGGKCTFREkrr9ni3jxLzLyPwP8PNkBO0Bge8C8BZBStw6ERzkL7IHWu0a5ekptx52cMx-BDXyVb-j7bUZqtI7sSk2H-bslvA1X1gbtBObJimuakOFXcstDImrTKD-nsVQKUENhR7JCsakCpNZmT80_BEJmKocCfQy0cmIrK46_1yZNDZWeB9kwShuFfx6REDL4-Sjmm4-nzd7aTSS1DtcA2dQB_2zPlcimv9pVkQ4FJmP0EsB5B7jObflA7TNNKKzcO_M6lrE034"/>
+<div class="absolute inset-0 bg-tertiary/20 group-hover:bg-transparent transition-colors"></div>
+<div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/60 to-transparent">
+<h3 class="font-headline-sm text-white">Cinema</h3>
+</div>
+</div>
+</div>
+<!-- Drama -->
+<div class="group cursor-pointer">
+<div class="relative aspect-video md:aspect-[4/5] overflow-hidden rounded-lg bg-secondary-container border border-outline-variant transition-all duration-500 hover:shadow-lg">
+<div class="absolute inset-0 bg-secondary/30 group-hover:bg-transparent transition-colors"></div>
+<div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/60 to-transparent">
+<h3 class="font-headline-sm text-white">Drama</h3>
+</div>
+</div>
+</div>
+<!-- Documentaries -->
+<div class="group cursor-pointer">
+<div class="relative aspect-video md:aspect-[4/5] overflow-hidden rounded-lg bg-primary-container border border-outline-variant transition-all duration-500 hover:shadow-lg">
+<div class="absolute inset-0 bg-primary/30 group-hover:bg-transparent transition-colors"></div>
+<div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/60 to-transparent">
+<h3 class="font-headline-sm text-white">Documentaries</h3>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Popular Searches / Top Picks Section -->
+<section class="space-y-8">
+<h2 class="font-headline-md text-headline-md text-primary">Popular Right Now</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="flex items-center gap-6 p-4 rounded-lg bg-surface hover:bg-surface-container transition-all cursor-pointer border border-transparent hover:border-outline-variant">
+<div class="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 border border-outline-variant">
+<img alt="The Art of Stillness" class="w-full h-full object-cover grayscale-[0.2] hover:grayscale-0 transition-all duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGhU9o15tUPYLSHt-RWFBlLRp6WOdJhFdLF33JcRy78Xa2G0iZhv_-BxlyUi4kzRlk3jGJFekQ2koOrztPi552cYr4_y308h1uPNgQ-r4k9EI0lHiBsa0wYNijx9ik6BUvc0o_7GfpRZ9IEUBCKgvTrN9q6gV5MpQde2FC1ZIPazvH262XZpXHfYsMjpr2KWdFLtPauUo0SwKvXsgT_46dMZAkyp2fJ_XAt1X3H8yU5MtFaxPLTZ8HJl_mx4dImI6DWrJ4OlFSem8"/>
+</div>
+<div class="flex-grow">
+<h4 class="font-headline-sm text-on-surface">The Art of Stillness</h4>
+<p class="font-body-md text-on-surface-variant">Ikigai Original • Season 2</p>
+</div>
+<span class="material-symbols-outlined text-outline">arrow_forward_ios</span>
+</div>
+<div class="flex items-center gap-6 p-4 rounded-lg bg-surface hover:bg-surface-container transition-all cursor-pointer border border-transparent hover:border-outline-variant">
+<div class="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 border border-outline-variant">
+<img alt="Botanical Wonders" class="w-full h-full object-cover grayscale-[0.2] hover:grayscale-0 transition-all duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoGGKCTFREkrr9ni3jxLzLyPwP8PNkBO0Bge8C8BZBStw6ERzkL7IHWu0a5ekptx52cMx-BDXyVb-j7bUZqtI7sSk2H-bslvA1X1gbtBObJimuakOFXcstDImrTKD-nsVQKUENhR7JCsakCpNZmT80_BEJmKocCfQy0cmIrK46_1yZNDZWeB9kwShuFfx6REDL4-Sjmm4-nzd7aTSS1DtcA2dQB_2zPlcimv9pVkQ4FJmP0EsB5B7jObflA7TNNKKzcO_M6lrE034"/>
+</div>
+<div class="flex-grow">
+<h4 class="font-headline-sm text-on-surface">Botanical Wonders</h4>
+<p class="font-body-md text-on-surface-variant">Nature Documentary • Film</p>
+</div>
+<span class="material-symbols-outlined text-outline">arrow_forward_ios</span>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center py-4 bg-surface dark:bg-inverse-surface border-t border-outline-variant">
+<div class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 hover:opacity-100 hover:bg-surface-variant dark:hover:bg-surface-container-highest rounded-lg px-4 py-2 cursor-pointer transition-all active:scale-95">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-md text-label-md mt-1">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-lg px-6 py-2 transition-all duration-300 scale-95 cursor-pointer shadow-sm">
+<span class="material-symbols-outlined">search</span>
+<span class="font-label-md text-label-md mt-1">Discover</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 hover:opacity-100 hover:bg-surface-variant dark:hover:bg-surface-container-highest rounded-lg px-4 py-2 cursor-pointer transition-all active:scale-95">
+<span class="material-symbols-outlined">video_library</span>
+<span class="font-label-md text-label-md mt-1">Library</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 hover:opacity-100 hover:bg-surface-variant dark:hover:bg-surface-container-highest rounded-lg px-4 py-2 cursor-pointer transition-all active:scale-95">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-md text-label-md mt-1">Profile</span>
+</div>
+</nav>
+</body></html>
