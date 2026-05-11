@@ -79,7 +79,7 @@ class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
         slivers: [
           // Hero app bar
           SliverAppBar(
-            expandedHeight: 260,
+            expandedHeight: 340,
             pinned: true,
             backgroundColor: AppColors.surface,
             foregroundColor: AppColors.primary,
@@ -121,27 +121,25 @@ class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
 
           // Info card
           SliverToBoxAdapter(
-            child: Transform.translate(
-              offset: const Offset(0, -20),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.outlineVariant),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF3D405B).withValues(alpha: 0.08),
-                        blurRadius: 24,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.outlineVariant),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF3D405B).withValues(alpha: 0.08),
+                      blurRadius: 24,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                       Text(m.title,
                           style:
                               AppTextStyles.headlineMedium.copyWith(fontSize: 26)),
@@ -212,7 +210,6 @@ class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
                 ),
               ),
             ),
-          ),
 
           // Synopsis
           if (m.overview != null && m.overview!.isNotEmpty)

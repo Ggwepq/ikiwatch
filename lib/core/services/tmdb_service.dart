@@ -124,4 +124,16 @@ class TmdbService {
   }) async {
     return _get('/$mediaType/$id', {'append_to_response': 'credits'});
   }
+
+  // ── Upcoming Movies ──
+  static Future<List<MediaItem>> getUpcoming() async {
+    final data = await _get('/movie/upcoming');
+    return _parseResults(data, forceMediaType: 'movie');
+  }
+
+  // ── Airing Today (TV) ──
+  static Future<List<MediaItem>> getAiringToday() async {
+    final data = await _get('/tv/airing_today');
+    return _parseResults(data, forceMediaType: 'tv');
+  }
 }

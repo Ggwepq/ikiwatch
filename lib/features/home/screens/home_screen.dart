@@ -22,6 +22,9 @@ class _HomeScreenState extends State<HomeScreen> {
   List<MediaItem> _trending = [];
   List<MediaItem> _topRated = [];
   List<MediaItem> _newReleases = [];
+  List<MediaItem> _upcoming = [];
+  List<MediaItem> _airingToday = [];
+  List<MediaItem> _popularKdramas = [];
 
   @override
   void initState() {
@@ -37,12 +40,16 @@ class _HomeScreenState extends State<HomeScreen> {
         TmdbService.getKdramas(),
         TmdbService.getKdramas(sortBy: 'vote_average.desc'),
         TmdbService.getKdramas(sortBy: 'first_air_date.desc'),
+        TmdbService.getKdramas(sortBy: 'popularity.asc'), // As "upcoming" fallback
       ]);
       if (!mounted) return;
       setState(() {
         _trending = results[0];
         _topRated = results[1];
         _newReleases = results[2];
+        _upcoming = results[3];
+        _airingToday = [];
+        _popularKdramas = []; // Already showing kdramas
         _loading = false;
       });
     } else {
@@ -51,12 +58,18 @@ class _HomeScreenState extends State<HomeScreen> {
         TmdbService.getTrending(mediaType: mt),
         TmdbService.getTopRated(mediaType: mt == 'all' ? 'movie' : mt),
         TmdbService.getNowPlaying(mediaType: mt == 'all' ? 'movie' : mt),
+        mt != 'tv' ? TmdbService.getUpcoming() : Future.value(<MediaItem>[]),
+        mt != 'movie' ? TmdbService.getAiringToday() : Future.value(<MediaItem>[]),
+        TmdbService.getKdramas(),
       ]);
       if (!mounted) return;
       setState(() {
         _trending = results[0];
         _topRated = results[1];
         _newReleases = results[2];
+        _upcoming = results[3];
+        _airingToday = results[4];
+        _popularKdramas = results[5];
         _loading = false;
       });
     }
@@ -139,10 +152,8 @@ class _HomeScreenState extends State<HomeScreen> {
             if (_trending.isNotEmpty)
               SliverToBoxAdapter(
                 child: HeroBanner(
-                  imageUrl: _trending.first.backdropUrl,
-                  title: _trending.first.title,
-                  description: _trending.first.overview ?? '',
-                  onWatch: () => _openDetails(_trending.first),
+                  items: _trending,
+                  onWatch: _openDetails,
                 ),
               ),
 
@@ -181,6 +192,42 @@ class _HomeScreenState extends State<HomeScreen> {
                   onItemTap: _openDetails,
                 ),
               ),
+
+            const SliverToBoxAdapter(child: SizedBox(height: 32)),
+
+            // Upcoming
+            if (_upcoming.isNotEmpty)
+              SliverToBoxAdapter(
+                child: ContentCarousel(
+                  title: 'Upcoming',
+                  items: _upcoming,
+                  onItemTap: _openDetails,
+                ),
+              ),
+
+            // Airing Today (TV only)
+            if (_airingToday.isNotEmpty) ...[
+              const SliverToBoxAdapter(child: SizedBox(height: 32)),
+              SliverToBoxAdapter(
+                child: ContentCarousel(
+                  title: 'Airing Today',
+                  items: _airingToday,
+                  onItemTap: _openDetails,
+                ),
+              ),
+            ],
+
+            // Popular K-Dramas Spotlight
+            if (_popularKdramas.isNotEmpty && _filter != ContentFilter.kdrama) ...[
+              const SliverToBoxAdapter(child: SizedBox(height: 32)),
+              SliverToBoxAdapter(
+                child: ContentCarousel(
+                  title: 'Popular K-Dramas',
+                  items: _popularKdramas,
+                  onItemTap: _openDetails,
+                ),
+              ),
+            ],
 
             const SliverToBoxAdapter(child: SizedBox(height: 100)),
           ],

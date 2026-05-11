@@ -1,113 +1,213 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import '../../../core/models/media_item.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 
-class HeroBanner extends StatelessWidget {
-  final String imageUrl;
-  final String title;
-  final String description;
-  final VoidCallback? onWatch;
-  final VoidCallback? onAddList;
+class HeroBanner extends StatefulWidget {
+  final List<MediaItem> items;
+  final void Function(MediaItem item)? onWatch;
 
   const HeroBanner({
     super.key,
-    required this.imageUrl,
-    required this.title,
-    required this.description,
+    required this.items,
     this.onWatch,
-    this.onAddList,
   });
 
   @override
+  State<HeroBanner> createState() => _HeroBannerState();
+}
+
+class _HeroBannerState extends State<HeroBanner> {
+  late final PageController _pageController;
+  Timer? _autoScrollTimer;
+  int _currentPage = 0;
+
+  List<MediaItem> get _displayItems =>
+      widget.items.take(5).toList();
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+    _startAutoScroll();
+  }
+
+  @override
+  void dispose() {
+    _autoScrollTimer?.cancel();
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _startAutoScroll() {
+    _autoScrollTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+      if (!mounted || _displayItems.isEmpty) return;
+      final nextPage = (_currentPage + 1) % _displayItems.length;
+      _pageController.animateToPage(
+        nextPage,
+        duration: const Duration(milliseconds: 600),
+        curve: Curves.easeInOut,
+      );
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return AspectRatio(
-      aspectRatio: 9 / 12,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          Image.network(imageUrl, fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => Container(color: AppColors.surfaceContainerHigh),
+    if (_displayItems.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      children: [
+        // Carousel
+        AspectRatio(
+          aspectRatio: 16 / 14,
+          child: PageView.builder(
+            controller: _pageController,
+            itemCount: _displayItems.length,
+            onPageChanged: (i) => setState(() => _currentPage = i),
+            itemBuilder: (context, index) {
+              final item = _displayItems[index];
+              return _HeroSlide(
+                item: item,
+                onWatch: () => widget.onWatch?.call(item),
+              );
+            },
           ),
-          // Gradient overlay
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Colors.transparent, Color(0x33000000), Color(0xCC000000)],
-                stops: [0.0, 0.5, 1.0],
+        ),
+
+        // Dot indicators
+        const SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(_displayItems.length, (i) {
+            final isActive = i == _currentPage;
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              margin: const EdgeInsets.symmetric(horizontal: 3),
+              width: isActive ? 24 : 8,
+              height: 8,
+              decoration: BoxDecoration(
+                color: isActive ? AppColors.primary : AppColors.outlineVariant,
+                borderRadius: BorderRadius.circular(4),
               ),
+            );
+          }),
+        ),
+      ],
+    );
+  }
+}
+
+class _HeroSlide extends StatelessWidget {
+  final MediaItem item;
+  final VoidCallback? onWatch;
+
+  const _HeroSlide({required this.item, this.onWatch});
+
+  @override
+  Widget build(BuildContext context) {
+    final imageUrl = item.backdropUrl.isNotEmpty
+        ? item.backdropUrl
+        : item.posterUrl;
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        if (imageUrl.isNotEmpty)
+          Image.network(imageUrl, fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) =>
+                Container(color: AppColors.surfaceContainerHigh),
+          ),
+        // Gradient overlay
+        Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.transparent,
+                Color(0x33000000),
+                Color(0xCC000000),
+              ],
+              stops: [0.0, 0.5, 1.0],
             ),
           ),
-          // Content
-          Positioned(
-            left: 24,
-            right: 24,
-            bottom: 32,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppColors.tertiary.withValues(alpha: 0.9),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    'FEATURED STORY',
-                    style: AppTextStyles.labelSmall.copyWith(
-                      color: AppColors.onTertiary,
-                      fontSize: 10,
-                      letterSpacing: 1.5,
-                    ),
+        ),
+        // Content
+        Positioned(
+          left: 24,
+          right: 24,
+          bottom: 24,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.tertiary.withValues(alpha: 0.9),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  item.mediaType == 'movie' ? 'FEATURED FILM' : 'FEATURED SERIES',
+                  style: AppTextStyles.labelSmall.copyWith(
+                    color: AppColors.onTertiary,
+                    fontSize: 10,
+                    letterSpacing: 1.5,
                   ),
                 ),
-                const SizedBox(height: 10),
-                Text(
-                  title,
-                  style: AppTextStyles.displayLargeMobile.copyWith(color: Colors.white),
-                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                item.title,
+                style: AppTextStyles.displayLargeMobile
+                    .copyWith(color: Colors.white),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (item.overview != null && item.overview!.isNotEmpty) ...[
                 const SizedBox(height: 8),
                 Text(
-                  description,
+                  item.overview!,
                   style: AppTextStyles.bodyMedium.copyWith(
                     color: Colors.white.withValues(alpha: 0.8),
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: onWatch,
-                        icon: const Icon(Icons.play_arrow, size: 20),
-                        label: const Text('WATCH NOW'),
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    OutlinedButton.icon(
-                      onPressed: onAddList,
-                      icon: const Icon(Icons.add, size: 20),
-                      label: const Text('MY LIST'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        side: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
-                        backgroundColor: Colors.white.withValues(alpha: 0.1),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                      ),
-                    ),
-                  ],
-                ),
               ],
-            ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: onWatch,
+                      icon: const Icon(Icons.play_arrow, size: 20),
+                      label: const Text('WATCH NOW'),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  OutlinedButton.icon(
+                    onPressed: () {},
+                    icon: const Icon(Icons.add, size: 20),
+                    label: const Text('MY LIST'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      side: BorderSide(
+                          color: Colors.white.withValues(alpha: 0.3)),
+                      backgroundColor: Colors.white.withValues(alpha: 0.1),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 14),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
