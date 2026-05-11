@@ -9,6 +9,7 @@ class ContentCard extends StatelessWidget {
   final String? badge;
   final double width;
   final VoidCallback? onTap;
+  final double? progress;
 
   const ContentCard({
     super.key,
@@ -18,6 +19,7 @@ class ContentCard extends StatelessWidget {
     this.badge,
     this.width = 140,
     this.onTap,
+    this.progress,
   });
 
   @override
@@ -72,7 +74,21 @@ class ContentCard extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 8),
+            if (progress != null) ...[
+              const SizedBox(height: 6),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(2),
+                child: LinearProgressIndicator(
+                  value: progress,
+                  backgroundColor: AppColors.surfaceContainerHigh,
+                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                  minHeight: 4,
+                ),
+              ),
+              const SizedBox(height: 8),
+            ] else ...[
+              const SizedBox(height: 8),
+            ],
             Text(
               title,
               style: AppTextStyles.labelMedium.copyWith(color: AppColors.onSurface),

@@ -175,24 +175,6 @@ class _PlayerScreenState extends State<PlayerScreen> {
                 ),
               ),
             ),
-            
-          // Floating back button
-          Positioned(
-            top: 16,
-            left: 16,
-            child: SafeArea(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.black54,
-                  shape: BoxShape.circle,
-                ),
-                child: IconButton(
-                  icon: const Icon(Icons.arrow_back, color: Colors.white),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ),
-            ),
-          ),
         ],
       ),
     );
