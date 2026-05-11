@@ -49,8 +49,8 @@ class PeachifyService extends ChangeNotifier {
   }
 
   String buildMovieUrl(String tmdbId, {String? sub, String? dub}) {
-    // We use our accent color: 4D7A68
-    String url = 'https://peachify.top/embed/movie/$tmdbId?accent=4D7A68';
+    // We use our accent color: 4D7A68 and hide cast button
+    String url = 'https://peachify.top/embed/movie/$tmdbId?accent=4D7A68&cast=hide';
     if (sub != null) url += '&sub=${Uri.encodeComponent(sub)}';
     if (dub != null) url += '&dub=${Uri.encodeComponent(dub)}';
     
@@ -68,7 +68,7 @@ class PeachifyService extends ChangeNotifier {
   }
 
   String buildTvUrl(String tmdbId, int season, int episode, {String? sub, String? dub, int? startAt}) {
-    String url = 'https://peachify.top/embed/tv/$tmdbId/$season/$episode?accent=4D7A68';
+    String url = 'https://peachify.top/embed/tv/$tmdbId/$season/$episode?accent=4D7A68&cast=hide';
     if (sub != null) url += '&sub=${Uri.encodeComponent(sub)}';
     if (dub != null) url += '&dub=${Uri.encodeComponent(dub)}';
     
