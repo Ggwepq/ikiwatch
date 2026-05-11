@@ -122,7 +122,7 @@ class TmdbService {
     required String mediaType,
     required int id,
   }) async {
-    return _get('/$mediaType/$id', {'append_to_response': 'credits'});
+    return _get('/$mediaType/$id', {'append_to_response': 'credits,videos'});
   }
 
   // ── Upcoming Movies ──
@@ -148,5 +148,31 @@ class TmdbService {
       'air_date.lte': todayStr,
     });
     return _parseResults(data, forceMediaType: 'tv');
+  }
+
+  // ── Reviews ──
+  static Future<List<Map<String, dynamic>>> getReviews({
+    required String mediaType,
+    required int id,
+  }) async {
+    final data = await _get('/$mediaType/$id/reviews');
+    if (data == null || data['results'] == null) return [];
+    return (data['results'] as List).cast<Map<String, dynamic>>();
+  }
+
+  // ── Recommendations ──
+  static Future<List<MediaItem>> getRecommendations({
+    required String mediaType,
+    required int id,
+  }) async {
+    final data = await _get('/$mediaType/$id/recommendations');
+    return _parseResults(data);
+  }
+
+  // ── Person Details (for cast screen) ──
+  static Future<Map<String, dynamic>?> getPersonDetails({
+    required int personId,
+  }) async {
+    return _get('/person/$personId', {'append_to_response': 'combined_credits'});
   }
 }
