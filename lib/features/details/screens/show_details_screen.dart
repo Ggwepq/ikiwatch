@@ -19,6 +19,19 @@ class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
   List<Map<String, dynamic>> _episodes = [];
   int _selectedSeason = 1;
 
+  bool _hasUpcomingEpisode() {
+    if (_details == null || _details!['next_episode_to_air'] == null) return false;
+    final airDateStr = _details!['next_episode_to_air']['air_date'];
+    if (airDateStr == null) return true; // Show it if no date is provided
+    final airDate = DateTime.tryParse(airDateStr);
+    if (airDate == null) return true;
+    final today = DateTime.now();
+    // Compare dates ignoring time
+    final airDateOnly = DateTime(airDate.year, airDate.month, airDate.day);
+    final todayOnly = DateTime(today.year, today.month, today.day);
+    return airDateOnly.isAfter(todayOnly) || airDateOnly.isAtSameMomentAs(todayOnly);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -54,6 +67,7 @@ class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
         tmdbId: widget.media.id,
         title: widget.media.title,
         mediaType: 'movie',
+        isKdrama: widget.media.isKdrama,
       ),
     ));
   }
@@ -66,6 +80,7 @@ class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
         mediaType: 'tv',
         season: season,
         episode: episode,
+        isKdrama: widget.media.isKdrama,
       ),
     ));
   }
@@ -289,7 +304,7 @@ class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
 
           // Episodes (for TV)
           if (m.mediaType == 'tv') ...[
-            if (_details != null && _details!['next_episode_to_air'] != null)
+            if (_hasUpcomingEpisode())
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
