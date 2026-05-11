@@ -104,7 +104,24 @@ class _PlayerScreenState extends State<PlayerScreen> {
                         final data = payload['data'];
                         if (data != null && data is Map) {
                           final dataMap = Map<String, dynamic>.from(data);
-                          dataMap['is_kdrama'] = widget.isKdrama;
+                          
+                          // Merge is_kdrama into the specific items
+                          for (final key in dataMap.keys) {
+                            if (dataMap[key] is Map) {
+                              if (key == widget.tmdbId.toString()) {
+                                dataMap[key]['is_kdrama'] = widget.isKdrama;
+                              } else {
+                                final existingProg = PeachifyService.instance.getProgress(key);
+                                if (existingProg != null && existingProg['is_kdrama'] != null) {
+                                  dataMap[key]['is_kdrama'] = existingProg['is_kdrama'];
+                                }
+                              }
+                            }
+                          }
+                          
+                          // Clean up corrupted keys from previous bug
+                          dataMap.removeWhere((key, value) => value is! Map);
+
                           PeachifyService.instance.saveProgress(dataMap);
                         }
                       }
