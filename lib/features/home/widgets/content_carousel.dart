@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_constants.dart';
+import '../../../core/models/media_item.dart';
 import '../../../core/widgets/content_card.dart';
 import '../../../core/widgets/section_header.dart';
 
 class ContentCarousel extends StatelessWidget {
   final String title;
-  final List<ShowItem> items;
-  final void Function(ShowItem item)? onItemTap;
+  final List<MediaItem> items;
+  final void Function(MediaItem item)? onItemTap;
 
   const ContentCarousel({
     super.key,
@@ -32,10 +32,9 @@ class ContentCarousel extends StatelessWidget {
             itemBuilder: (context, index) {
               final item = items[index];
               return ContentCard(
-                imageUrl: item.imageUrl,
+                imageUrl: item.posterUrl,
                 title: item.title,
                 subtitle: item.subtitle,
-                badge: item.badge,
                 onTap: () => onItemTap?.call(item),
               );
             },

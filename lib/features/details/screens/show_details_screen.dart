@@ -1,19 +1,83 @@
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_constants.dart';
+import '../../../core/models/media_item.dart';
+import '../../../core/services/tmdb_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../player/screens/player_screen.dart';
 
-class ShowDetailsScreen extends StatelessWidget {
-  final ShowItem show;
-  const ShowDetailsScreen({super.key, required this.show});
+class ShowDetailsScreen extends StatefulWidget {
+  final MediaItem media;
+  const ShowDetailsScreen({super.key, required this.media});
+
+  @override
+  State<ShowDetailsScreen> createState() => _ShowDetailsScreenState();
+}
+
+class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
+  Map<String, dynamic>? _details;
+  List<Map<String, dynamic>> _episodes = [];
+  int _selectedSeason = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDetails();
+  }
+
+  Future<void> _loadDetails() async {
+    final details = await TmdbService.getDetailsRaw(
+      mediaType: widget.media.mediaType,
+      id: widget.media.id,
+    );
+    if (!mounted) return;
+    setState(() {
+      _details = details;
+    });
+    if (widget.media.mediaType == 'tv') {
+      _loadEpisodes(_selectedSeason);
+    }
+  }
+
+  Future<void> _loadEpisodes(int season) async {
+    final eps = await TmdbService.getSeasonEpisodes(
+      tvId: widget.media.id,
+      seasonNumber: season,
+    );
+    if (!mounted) return;
+    setState(() => _episodes = eps);
+  }
+
+  void _playMovie() {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => PlayerScreen(
+        tmdbId: widget.media.id,
+        title: widget.media.title,
+        mediaType: 'movie',
+      ),
+    ));
+  }
+
+  void _playEpisode(int season, int episode, String epTitle) {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => PlayerScreen(
+        tmdbId: widget.media.id,
+        title: '${widget.media.title} — S${season}E$episode',
+        mediaType: 'tv',
+        season: season,
+        episode: episode,
+      ),
+    ));
+  }
 
   @override
   Widget build(BuildContext context) {
+    final m = widget.media;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: CustomScrollView(
         slivers: [
-          // Collapsing hero app bar
+          // Hero app bar
           SliverAppBar(
             expandedHeight: 260,
             pinned: true,
@@ -34,11 +98,10 @@ class ShowDetailsScreen extends StatelessWidget {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.network(
-                    MockData.imgPetalsHero,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(color: AppColors.surfaceContainerHigh),
-                  ),
+                  if (m.backdropUrl.isNotEmpty)
+                    Image.network(m.backdropUrl, fit: BoxFit.cover,
+                        errorBuilder: (_, _a, _b) =>
+                            Container(color: AppColors.surfaceContainerHigh)),
                   Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -79,44 +142,67 @@ class ShowDetailsScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Petals in the Wind',
-                        style: AppTextStyles.headlineMedium.copyWith(fontSize: 26),
-                      ),
+                      Text(m.title,
+                          style:
+                              AppTextStyles.headlineMedium.copyWith(fontSize: 26)),
                       const SizedBox(height: 8),
-                      Row(
+
+                      // Metadata row
+                      Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 8,
                         children: [
-                          Icon(Icons.star, size: 16, color: AppColors.primary),
-                          const SizedBox(width: 4),
-                          Text('4.8', style: AppTextStyles.labelMedium.copyWith(color: AppColors.primary)),
-                          _dot(),
-                          Text('Drama', style: AppTextStyles.labelMedium.copyWith(color: AppColors.onSurfaceVariant)),
-                          _dot(),
-                          Text('2024', style: AppTextStyles.labelMedium.copyWith(color: AppColors.onSurfaceVariant)),
-                          _dot(),
-                          Text('12 Episodes', style: AppTextStyles.labelMedium.copyWith(color: AppColors.onSurfaceVariant)),
+                          if (m.voteAverage > 0) ...[
+                            Icon(Icons.star, size: 16, color: AppColors.primary),
+                            Text(m.voteAverage.toStringAsFixed(1),
+                                style: AppTextStyles.labelMedium
+                                    .copyWith(color: AppColors.primary)),
+                            _dot(),
+                          ],
+                          Text(m.mediaType == 'movie' ? 'Movie' : 'TV Series',
+                              style: AppTextStyles.labelMedium
+                                  .copyWith(color: AppColors.onSurfaceVariant)),
+                          if (m.year.isNotEmpty) ...[
+                            _dot(),
+                            Text(m.year,
+                                style: AppTextStyles.labelMedium
+                                    .copyWith(color: AppColors.onSurfaceVariant)),
+                          ],
+                          if (_details?['number_of_seasons'] != null) ...[
+                            _dot(),
+                            Text(
+                                '${_details!['number_of_seasons']} Season${_details!['number_of_seasons'] > 1 ? 's' : ''}',
+                                style: AppTextStyles.labelMedium
+                                    .copyWith(color: AppColors.onSurfaceVariant)),
+                          ],
+                          if (_details?['runtime'] != null) ...[
+                            _dot(),
+                            Text('${_details!['runtime']}min',
+                                style: AppTextStyles.labelMedium
+                                    .copyWith(color: AppColors.onSurfaceVariant)),
+                          ],
                         ],
                       ),
+
                       const SizedBox(height: 20),
+
+                      // Watch button
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton.icon(
-                          onPressed: () {},
+                          onPressed: m.mediaType == 'movie'
+                              ? _playMovie
+                              : (_episodes.isNotEmpty
+                                  ? () => _playEpisode(
+                                      _selectedSeason,
+                                      _episodes.first['episode_number'] ?? 1,
+                                      _episodes.first['name'] ?? '')
+                                  : null),
                           icon: const Icon(Icons.play_arrow),
-                          label: const Text('WATCH LATEST EPISODE'),
+                          label: Text(m.mediaType == 'movie'
+                              ? 'WATCH NOW'
+                              : 'WATCH LATEST EPISODE'),
                           style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      SizedBox(
-                        width: double.infinity,
-                        child: OutlinedButton.icon(
-                          onPressed: () {},
-                          icon: const Icon(Icons.add),
-                          label: const Text('MY LIST'),
-                          style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 16),
                           ),
                         ),
@@ -128,106 +214,126 @@ class ShowDetailsScreen extends StatelessWidget {
             ),
           ),
 
-          // Episodes section
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Episodes', style: AppTextStyles.headlineSmall),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: AppColors.surfaceContainerLow,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: AppColors.outlineVariant),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text('SEASON 01', style: AppTextStyles.labelMedium.copyWith(color: AppColors.primary, fontSize: 12)),
-                            const SizedBox(width: 4),
-                            Icon(Icons.expand_more, size: 16, color: AppColors.primary),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Divider(color: AppColors.outlineVariant),
-                ],
-              ),
-            ),
-          ),
-
-          // Episode list
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                final ep = MockData.episodes[index];
-                return _EpisodeListItem(episode: ep);
-              },
-              childCount: MockData.episodes.length,
-            ),
-          ),
-
           // Synopsis
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Synopsis', style: AppTextStyles.headlineSmall.copyWith(fontSize: 18)),
-                  const SizedBox(height: 12),
-                  Text(
-                    'A gentle tale of serendipity set against the backdrop of a quiet seaside town. When an aspiring artist meets a weary traveler, their worlds collide in a soft symphony of shared dreams and quiet moments.',
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.onSurfaceVariant,
-                      fontSize: 14,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Wrap(
-                    spacing: 8,
-                    children: ['Romantic', 'Slice of Life'].map((g) => Chip(
-                      label: Text(g, style: AppTextStyles.labelSmall.copyWith(fontSize: 11, color: AppColors.onSurfaceVariant)),
-                      backgroundColor: AppColors.surfaceContainerHigh,
-                      side: BorderSide(color: AppColors.outlineVariant),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      padding: EdgeInsets.zero,
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    )).toList(),
-                  ),
-                ],
+          if (m.overview != null && m.overview!.isNotEmpty)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Synopsis',
+                        style: AppTextStyles.headlineSmall.copyWith(fontSize: 18)),
+                    const SizedBox(height: 8),
+                    Text(m.overview!,
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: AppColors.onSurfaceVariant, fontSize: 14)),
+                  ],
+                ),
               ),
             ),
-          ),
 
-          // Details section
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Divider(color: AppColors.outlineVariant),
-                  const SizedBox(height: 16),
-                  Text('DETAILS', style: AppTextStyles.labelSmall.copyWith(
-                    color: AppColors.outline, letterSpacing: 1.5,
-                  )),
-                  const SizedBox(height: 16),
-                  _detailRow('Director', 'Hana Sasaki'),
-                  _detailRow('Cast', 'Kenji Sato, Yumi Ito'),
-                  _detailRow('Audio', 'Japanese (Stereo)'),
-                  _detailRow('Subtitles', 'English, Spanish'),
-                ],
+          // Genres
+          if (_details != null && _details!['genres'] != null)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+                child: Wrap(
+                  spacing: 8,
+                  children: (_details!['genres'] as List)
+                      .map((g) => Chip(
+                            label: Text(g['name'],
+                                style: AppTextStyles.labelSmall.copyWith(
+                                    fontSize: 11,
+                                    color: AppColors.onSurfaceVariant)),
+                            backgroundColor: AppColors.surfaceContainerHigh,
+                            side: BorderSide(color: AppColors.outlineVariant),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20)),
+                            padding: EdgeInsets.zero,
+                            materialTapTargetSize:
+                                MaterialTapTargetSize.shrinkWrap,
+                          ))
+                      .toList(),
+                ),
               ),
             ),
-          ),
+
+          // Episodes (for TV)
+          if (m.mediaType == 'tv') ...[
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Episodes',
+                            style: AppTextStyles.headlineSmall),
+                        if (_details?['number_of_seasons'] != null)
+                          _SeasonDropdown(
+                            totalSeasons: _details!['number_of_seasons'],
+                            selected: _selectedSeason,
+                            onChanged: (s) {
+                              setState(() => _selectedSeason = s);
+                              _loadEpisodes(s);
+                            },
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Divider(color: AppColors.outlineVariant),
+                  ],
+                ),
+              ),
+            ),
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final ep = _episodes[index];
+                  return _EpisodeTile(
+                    episode: ep,
+                    onTap: () => _playEpisode(
+                      _selectedSeason,
+                      ep['episode_number'] ?? 1,
+                      ep['name'] ?? '',
+                    ),
+                  );
+                },
+                childCount: _episodes.length,
+              ),
+            ),
+          ],
+
+          // Cast
+          if (_details?['credits']?['cast'] != null)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Divider(color: AppColors.outlineVariant),
+                    const SizedBox(height: 16),
+                    Text('CAST',
+                        style: AppTextStyles.labelSmall
+                            .copyWith(color: AppColors.outline, letterSpacing: 1.5)),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 16,
+                      runSpacing: 8,
+                      children: (_details!['credits']['cast'] as List)
+                          .take(6)
+                          .map((c) => Text(c['name'] ?? '',
+                              style: AppTextStyles.bodyMedium
+                                  .copyWith(fontSize: 14)))
+                          .toList(),
+                    ),
+                  ],
+                ),
+              ),
+            ),
 
           const SliverToBoxAdapter(child: SizedBox(height: 40)),
         ],
@@ -236,42 +342,78 @@ class ShowDetailsScreen extends StatelessWidget {
   }
 
   Widget _dot() => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 8),
-    child: Container(
-      width: 4, height: 4,
-      decoration: BoxDecoration(
-        color: AppColors.outlineVariant,
-        shape: BoxShape.circle,
-      ),
-    ),
-  );
-
-  Widget _detailRow(String label, String value) => Padding(
-    padding: const EdgeInsets.only(bottom: 12),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(label, style: AppTextStyles.bodyMedium.copyWith(fontSize: 14, color: AppColors.outline)),
-        Text(value, style: AppTextStyles.bodyMedium.copyWith(fontSize: 14, fontWeight: FontWeight.w500)),
-      ],
-    ),
-  );
+        padding: const EdgeInsets.symmetric(horizontal: 2),
+        child: Container(
+          width: 4, height: 4,
+          decoration: BoxDecoration(
+            color: AppColors.outlineVariant, shape: BoxShape.circle),
+        ),
+      );
 }
 
-class _EpisodeListItem extends StatelessWidget {
-  final EpisodeItem episode;
-  const _EpisodeListItem({required this.episode});
+class _SeasonDropdown extends StatelessWidget {
+  final int totalSeasons;
+  final int selected;
+  final ValueChanged<int> onChanged;
+  const _SeasonDropdown(
+      {required this.totalSeasons,
+      required this.selected,
+      required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
-    return Opacity(
-      opacity: episode.locked ? 0.5 : 1.0,
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.outlineVariant),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<int>(
+          value: selected,
+          isDense: true,
+          style: AppTextStyles.labelMedium
+              .copyWith(color: AppColors.primary, fontSize: 12),
+          icon: Icon(Icons.expand_more, size: 16, color: AppColors.primary),
+          items: List.generate(
+            totalSeasons,
+            (i) => DropdownMenuItem(
+                value: i + 1,
+                child: Text('Season ${i + 1}')),
+          ),
+          onChanged: (v) {
+            if (v != null) onChanged(v);
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _EpisodeTile extends StatelessWidget {
+  final Map<String, dynamic> episode;
+  final VoidCallback? onTap;
+  const _EpisodeTile({required this.episode, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final epNum = episode['episode_number'] ?? 0;
+    final name = episode['name'] ?? 'Episode $epNum';
+    final overview = episode['overview'] ?? '';
+    final stillPath = episode['still_path'];
+    final stillUrl = stillPath != null
+        ? 'https://image.tmdb.org/t/p/w300$stillPath'
+        : '';
+    final runtime = episode['runtime'];
+
+    return InkWell(
+      onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Thumbnail
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: AspectRatio(
@@ -279,56 +421,57 @@ class _EpisodeListItem extends StatelessWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    Image.network(episode.imageUrl, fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(color: AppColors.surfaceContainerHigh),
-                    ),
-                    if (episode.locked)
-                      Center(child: Icon(Icons.lock, color: Colors.white, size: 28)),
-                    Positioned(
-                      bottom: 8,
-                      right: 8,
+                    if (stillUrl.isNotEmpty)
+                      Image.network(stillUrl, fit: BoxFit.cover,
+                          errorBuilder: (_, _a, _b) =>
+                              Container(color: AppColors.surfaceContainerHigh))
+                    else
+                      Container(color: AppColors.surfaceContainerHigh,
+                          child: const Center(
+                              child: Icon(Icons.play_circle_outline,
+                                  size: 40, color: AppColors.outlineVariant))),
+                    // Play overlay
+                    Center(
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                        padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.6),
-                          borderRadius: BorderRadius.circular(4),
+                          color: Colors.black.withValues(alpha: 0.4),
+                          shape: BoxShape.circle,
                         ),
-                        child: Text(episode.duration,
-                          style: AppTextStyles.labelSmall.copyWith(color: Colors.white, fontSize: 10),
-                        ),
+                        child: const Icon(Icons.play_arrow,
+                            color: Colors.white, size: 28),
                       ),
                     ),
+                    if (runtime != null)
+                      Positioned(
+                        bottom: 8,
+                        right: 8,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.6),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text('${runtime}min',
+                              style: AppTextStyles.labelSmall
+                                  .copyWith(color: Colors.white, fontSize: 10)),
+                        ),
+                      ),
                   ],
                 ),
               ),
             ),
             const SizedBox(height: 12),
-            Text(
-              '${episode.number}. ${episode.title}',
-              style: AppTextStyles.labelMedium.copyWith(fontSize: 15),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              episode.description,
-              style: AppTextStyles.bodyMedium.copyWith(
-                fontSize: 13,
-                color: AppColors.onSurfaceVariant,
-                fontStyle: episode.locked ? FontStyle.italic : FontStyle.normal,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            if (episode.progress != null) ...[
-              const SizedBox(height: 8),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(2),
-                child: LinearProgressIndicator(
-                  value: episode.progress!,
-                  backgroundColor: AppColors.surfaceContainerHighest,
-                  color: AppColors.primary,
-                  minHeight: 3,
-                ),
-              ),
+            Text('$epNum. $name',
+                style: AppTextStyles.labelMedium.copyWith(fontSize: 15)),
+            if (overview.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Text(overview,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                      fontSize: 13, color: AppColors.onSurfaceVariant),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis),
             ],
             const SizedBox(height: 8),
           ],

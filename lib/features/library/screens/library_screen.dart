@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_constants.dart';
+import '../../../core/models/content_filter.dart';
+import '../../../core/models/media_item.dart';
+import '../../../core/services/tmdb_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/widgets/content_card.dart';
 import '../../details/screens/show_details_screen.dart';
 
 class LibraryScreen extends StatefulWidget {
@@ -11,24 +14,75 @@ class LibraryScreen extends StatefulWidget {
   State<LibraryScreen> createState() => _LibraryScreenState();
 }
 
-class _LibraryScreenState extends State<LibraryScreen> with SingleTickerProviderStateMixin {
+class _LibraryScreenState extends State<LibraryScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  ContentFilter _filter = ContentFilter.all;
+  bool _loading = true;
+
+  List<MediaItem> _trending = [];
+  List<MediaItem> _popular = [];
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
+    _tabController.addListener(_onTabChanged);
+    _loadData();
   }
 
   @override
   void dispose() {
+    _tabController.removeListener(_onTabChanged);
     _tabController.dispose();
     super.dispose();
   }
 
-  void _openDetails(ShowItem item) {
+  void _onTabChanged() {
+    if (!_tabController.indexIsChanging) {
+      final filters = [
+        ContentFilter.all,
+        ContentFilter.movie,
+        ContentFilter.tv,
+        ContentFilter.kdrama,
+      ];
+      setState(() => _filter = filters[_tabController.index]);
+      _loadData();
+    }
+  }
+
+  Future<void> _loadData() async {
+    setState(() => _loading = true);
+
+    if (_filter == ContentFilter.kdrama) {
+      final results = await Future.wait([
+        TmdbService.getKdramas(),
+        TmdbService.getKdramas(sortBy: 'vote_average.desc'),
+      ]);
+      if (!mounted) return;
+      setState(() {
+        _trending = results[0];
+        _popular = results[1];
+        _loading = false;
+      });
+    } else {
+      final mt = _filter.mediaType;
+      final results = await Future.wait([
+        TmdbService.getTrending(mediaType: mt),
+        TmdbService.getPopular(mediaType: mt == 'all' ? 'movie' : mt),
+      ]);
+      if (!mounted) return;
+      setState(() {
+        _trending = results[0];
+        _popular = results[1];
+        _loading = false;
+      });
+    }
+  }
+
+  void _openDetails(MediaItem item) {
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => ShowDetailsScreen(show: item)),
+      MaterialPageRoute(builder: (_) => ShowDetailsScreen(media: item)),
     );
   }
 
@@ -37,10 +91,8 @@ class _LibraryScreenState extends State<LibraryScreen> with SingleTickerProvider
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text(
-          'IKIWATCH',
-          style: AppTextStyles.brandTitle.copyWith(color: AppColors.primary),
-        ),
+        title: Text('IKIWATCH',
+            style: AppTextStyles.brandTitle.copyWith(color: AppColors.primary)),
         actions: [
           IconButton(
             icon: Icon(Icons.search, color: AppColors.onSurfaceVariant),
@@ -60,70 +112,46 @@ class _LibraryScreenState extends State<LibraryScreen> with SingleTickerProvider
           children: [
             const SizedBox(height: 24),
 
-            // Continue Watching header
+            // Recommendations header
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Continue\nWatching',
-                    style: AppTextStyles.headlineMedium.copyWith(
-                      color: AppColors.primary,
-                      fontSize: 28,
-                    ),
-                  ),
-                  Text('See\nAll',
-                    textAlign: TextAlign.end,
-                    style: AppTextStyles.labelMedium.copyWith(color: AppColors.primary),
-                  ),
-                ],
-              ),
+              child: Text('For You',
+                  style: AppTextStyles.headlineMedium
+                      .copyWith(color: AppColors.primary, fontSize: 28)),
             ),
             const SizedBox(height: 16),
 
-            // Continue watching carousel
-            SizedBox(
-              height: 190,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                itemCount: MockData.continueWatching.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 16),
-                itemBuilder: (context, index) {
-                  final item = MockData.continueWatching[index];
-                  return _ContinueWatchingCard(
-                    item: item,
-                    onTap: () => _openDetails(item),
-                  );
-                },
+            // Trending carousel
+            if (!_loading && _trending.isNotEmpty) ...[
+              SizedBox(
+                height: 190,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  itemCount: _trending.length.clamp(0, 8),
+                  separatorBuilder: (_, __) => const SizedBox(width: 16),
+                  itemBuilder: (context, index) {
+                    final item = _trending[index];
+                    return _WideCard(item: item, onTap: () => _openDetails(item));
+                  },
+                ),
               ),
-            ),
+            ],
+            if (_loading)
+              const SizedBox(
+                height: 190,
+                child: Center(
+                    child: CircularProgressIndicator(color: AppColors.primary)),
+              ),
 
-            const SizedBox(height: 40),
+            const SizedBox(height: 32),
 
-            // My Library header
+            // Library header + tabs
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'My Library',
-                    style: AppTextStyles.headlineMedium.copyWith(
-                      color: AppColors.primary,
-                      fontSize: 28,
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      _ViewToggleButton(icon: Icons.grid_view, isActive: true),
-                      const SizedBox(width: 4),
-                      _ViewToggleButton(icon: Icons.list, isActive: false),
-                    ],
-                  ),
-                ],
-              ),
+              child: Text('Browse',
+                  style: AppTextStyles.headlineMedium
+                      .copyWith(color: AppColors.primary, fontSize: 28)),
             ),
             const SizedBox(height: 16),
 
@@ -144,35 +172,45 @@ class _LibraryScreenState extends State<LibraryScreen> with SingleTickerProvider
                 tabs: const [
                   Tab(text: 'All'),
                   Tab(text: 'Movies'),
-                  Tab(text: 'Series'),
-                  Tab(text: 'Downloaded'),
+                  Tab(text: 'TV Shows'),
+                  Tab(text: 'K-Drama'),
                 ],
               ),
             ),
             const SizedBox(height: 20),
 
-            // Library grid
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 0.55,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 20,
+            // Grid
+            if (!_loading)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 0.55,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 20,
+                  ),
+                  itemCount: _popular.length.clamp(0, 10),
+                  itemBuilder: (context, index) {
+                    final item = _popular[index];
+                    return ContentCard(
+                      imageUrl: item.posterUrl,
+                      title: item.title,
+                      subtitle: item.subtitle,
+                      width: double.infinity,
+                      onTap: () => _openDetails(item),
+                    );
+                  },
                 ),
-                itemCount: MockData.libraryItems.length,
-                itemBuilder: (context, index) {
-                  final item = MockData.libraryItems[index];
-                  return _LibraryGridItem(
-                    item: item,
-                    onTap: () => _openDetails(item),
-                  );
-                },
               ),
-            ),
+            if (_loading)
+              const SizedBox(
+                height: 200,
+                child: Center(
+                    child: CircularProgressIndicator(color: AppColors.primary)),
+              ),
           ],
         ),
       ),
@@ -180,10 +218,10 @@ class _LibraryScreenState extends State<LibraryScreen> with SingleTickerProvider
   }
 }
 
-class _ContinueWatchingCard extends StatelessWidget {
-  final ShowItem item;
+class _WideCard extends StatelessWidget {
+  final MediaItem item;
   final VoidCallback? onTap;
-  const _ContinueWatchingCard({required this.item, this.onTap});
+  const _WideCard({required this.item, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -197,123 +235,23 @@ class _ContinueWatchingCard extends StatelessWidget {
             Expanded(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    Image.network(item.imageUrl, fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(color: AppColors.surfaceContainerHigh),
-                    ),
-                    // Progress bar at bottom
-                    if (item.progress != null)
-                      Positioned(
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        child: Container(
-                          height: 3,
-                          color: AppColors.surfaceContainerHighest,
-                          child: FractionallySizedBox(
-                            alignment: Alignment.centerLeft,
-                            widthFactor: item.progress!,
-                            child: Container(color: AppColors.primary),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
+                child: item.backdropUrl.isNotEmpty
+                    ? Image.network(item.backdropUrl, fit: BoxFit.cover,
+                        errorBuilder: (_, _a, _b) =>
+                            Container(color: AppColors.surfaceContainerHigh))
+                    : Container(color: AppColors.surfaceContainerHigh),
               ),
             ),
             const SizedBox(height: 10),
             Text(item.title,
-              style: AppTextStyles.headlineSmall.copyWith(fontSize: 15, color: AppColors.onSurface),
-              maxLines: 1, overflow: TextOverflow.ellipsis,
-            ),
+                style: AppTextStyles.labelMedium.copyWith(fontSize: 15),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis),
             Text(item.subtitle,
-              style: AppTextStyles.bodyMedium.copyWith(fontSize: 13, color: AppColors.onSurfaceVariant),
-            ),
+                style: AppTextStyles.bodyMedium
+                    .copyWith(fontSize: 13, color: AppColors.onSurfaceVariant)),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _LibraryGridItem extends StatelessWidget {
-  final ShowItem item;
-  final VoidCallback? onTap;
-  const _LibraryGridItem({required this.item, this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Image.network(item.imageUrl, fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(color: AppColors.surfaceContainerHigh),
-                  ),
-                  if (item.badge != null)
-                    Positioned(
-                      top: 8,
-                      right: 8,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(item.badge!,
-                          style: AppTextStyles.labelSmall.copyWith(
-                            color: AppColors.onPrimary,
-                            fontSize: 9,
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 10),
-          Text(item.title,
-            style: AppTextStyles.headlineSmall.copyWith(fontSize: 15),
-            maxLines: 1, overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 2),
-          Text(item.subtitle,
-            style: AppTextStyles.bodyMedium.copyWith(
-              fontSize: 13,
-              color: AppColors.onSurfaceVariant,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ViewToggleButton extends StatelessWidget {
-  final IconData icon;
-  final bool isActive;
-  const _ViewToggleButton({required this.icon, required this.isActive});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: isActive ? AppColors.primaryContainer.withValues(alpha: 0.2) : Colors.transparent,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Icon(icon, size: 20,
-        color: isActive ? AppColors.primary : AppColors.onSurfaceVariant,
       ),
     );
   }
