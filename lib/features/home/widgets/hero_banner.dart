@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/models/media_item.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/services/peachify_service.dart';
 
 class HeroBanner extends StatefulWidget {
   final List<MediaItem> items;
@@ -63,18 +64,49 @@ class _HeroBannerState extends State<HeroBanner> {
         // Carousel
         SizedBox(
           height: 450,
-          child: PageView.builder(
-            controller: _pageController,
-            itemCount: _displayItems.length,
-            onPageChanged: (i) => setState(() => _currentPage = i),
-            itemBuilder: (context, index) {
-              final item = _displayItems[index];
-              return _HeroSlide(
-                item: item,
-                onWatch: () => widget.onWatch?.call(item),
-                onTapItem: () => widget.onTapItem?.call(item),
+          child: AnimatedBuilder(
+            animation: PeachifyService.instance,
+            builder: (context, _) {
+              return PageView.builder(
+                controller: _pageController,
+                itemCount: _displayItems.length,
+                onPageChanged: (i) => setState(() => _currentPage = i),
+                itemBuilder: (context, index) {
+                  final item = _displayItems[index];
+                  final progData = PeachifyService.instance.getProgress(item.id.toString());
+                  double? progressValue;
+                  
+                  if (progData != null) {
+                    if (item.mediaType == 'movie' && progData['progress'] != null) {
+                      double w = (progData['progress']['watched'] as num?)?.toDouble() ?? 0.0;
+                      double d = (progData['progress']['duration'] as num?)?.toDouble() ?? 1.0;
+                      if (d <= 0 || d.isNaN) d = 1.0;
+                      if (w.isNaN || w.isInfinite) w = 0.0;
+                      progressValue = (w / d).clamp(0.0, 1.0);
+                    } else if (item.mediaType == 'tv' && progData['last_season_watched'] != null) {
+                      final epKey = 's${progData['last_season_watched']}e${progData['last_episode_watched']}';
+                      if (progData['show_progress'] != null && progData['show_progress'][epKey] != null) {
+                        final epProg = progData['show_progress'][epKey]['progress'];
+                        if (epProg != null) {
+                          double w = (epProg['watched'] as num?)?.toDouble() ?? 0.0;
+                          double d = (epProg['duration'] as num?)?.toDouble() ?? 1.0;
+                          if (d <= 0 || d.isNaN) d = 1.0;
+                          if (w.isNaN || w.isInfinite) w = 0.0;
+                          progressValue = (w / d).clamp(0.0, 1.0);
+                        }
+                      }
+                    }
+                  }
+
+                  return _HeroSlide(
+                    item: item,
+                    progress: progressValue,
+                    onWatch: () => widget.onWatch?.call(item),
+                    onTapItem: () => widget.onTapItem?.call(item),
+                  );
+                },
               );
-            },
+            }
           ),
         ),
 
@@ -103,10 +135,11 @@ class _HeroBannerState extends State<HeroBanner> {
 
 class _HeroSlide extends StatelessWidget {
   final MediaItem item;
+  final double? progress;
   final VoidCallback? onWatch;
   final VoidCallback? onTapItem;
 
-  const _HeroSlide({required this.item, this.onWatch, this.onTapItem});
+  const _HeroSlide({required this.item, this.progress, this.onWatch, this.onTapItem});
 
   @override
   Widget build(BuildContext context) {
@@ -163,6 +196,18 @@ class _HeroSlide extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 10),
+              if (progress != null) ...[
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(2),
+                  child: LinearProgressIndicator(
+                    value: progress,
+                    backgroundColor: Colors.white24,
+                    valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                    minHeight: 4,
+                  ),
+                ),
+                const SizedBox(height: 10),
+              ],
               Text(
                 item.title,
                 style: AppTextStyles.displayLargeMobile

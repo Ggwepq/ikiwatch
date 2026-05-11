@@ -167,14 +167,18 @@ class _LibraryScreenState extends State<LibraryScreen>
                             if (p['show_progress'] != null && p['show_progress'][epKey] != null) {
                                final epProg = p['show_progress'][epKey]['progress'];
                                if (epProg != null) {
-                                 final w = epProg['watched'] ?? 0;
-                                 final d = epProg['duration'] ?? 1;
+                                 double w = (epProg['watched'] as num?)?.toDouble() ?? 0.0;
+                                 double d = (epProg['duration'] as num?)?.toDouble() ?? 1.0;
+                                 if (d <= 0 || d.isNaN) d = 1.0;
+                                 if (w.isNaN || w.isInfinite) w = 0.0;
                                  progressValue = (w / d).clamp(0.0, 1.0);
                                }
                             }
                           } else if (p['type'] == 'movie' && p['progress'] != null) {
-                            final w = p['progress']['watched'] ?? 0;
-                            final d = p['progress']['duration'] ?? 1;
+                            double w = (p['progress']['watched'] as num?)?.toDouble() ?? 0.0;
+                            double d = (p['progress']['duration'] as num?)?.toDouble() ?? 1.0;
+                            if (d <= 0 || d.isNaN) d = 1.0;
+                            if (w.isNaN || w.isInfinite) w = 0.0;
                             progressValue = (w / d).clamp(0.0, 1.0);
                             subtitle = '${(progressValue * 100).toInt()}% watched';
                           }
