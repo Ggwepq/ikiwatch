@@ -38,7 +38,9 @@ class PeachifyService extends ChangeNotifier {
   }
 
   List<Map<String, dynamic>> getAllProgress() {
-    final list = _progressData.values.toList().cast<Map<String, dynamic>>();
+    final list = _progressData.values
+        .whereType<Map<String, dynamic>>()
+        .toList();
     // Sort by last_updated if available, descending
     list.sort((a, b) {
       final aTime = a['last_updated'] ?? 0;
