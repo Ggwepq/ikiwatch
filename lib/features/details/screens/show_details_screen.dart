@@ -80,7 +80,7 @@ class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
         slivers: [
           // Hero app bar
           SliverAppBar(
-            expandedHeight: 450,
+            expandedHeight: 250,
             pinned: true,
             backgroundColor: AppColors.surface,
             foregroundColor: AppColors.primary,
@@ -191,7 +191,7 @@ class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
                         builder: (context, _) {
                           final prog = PeachifyService.instance.getProgress(m.id.toString());
                           bool hasProgress = false;
-                          String btnText = m.mediaType == 'movie' ? 'WATCH NOW' : 'WATCH LATEST EPISODE';
+                          String btnText = m.mediaType == 'movie' ? 'WATCH NOW' : 'START WATCHING';
                           
                           if (prog != null) {
                             if (m.mediaType == 'movie' && prog['progress'] != null) {
@@ -243,7 +243,7 @@ class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
             ),
 
           // Synopsis
-          if (m.overview != null && m.overview!.isNotEmpty)
+          if (((_details != null ? _details!['overview'] : m.overview) ?? '').isNotEmpty)
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
@@ -253,7 +253,7 @@ class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
                     Text('Synopsis',
                         style: AppTextStyles.headlineSmall.copyWith(fontSize: 18)),
                     const SizedBox(height: 8),
-                    Text(m.overview!,
+                    Text((_details != null ? _details!['overview'] : m.overview) ?? '',
                         style: AppTextStyles.bodyMedium.copyWith(
                           color: AppColors.onSurfaceVariant, fontSize: 14)),
                   ],
@@ -289,6 +289,44 @@ class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
 
           // Episodes (for TV)
           if (m.mediaType == 'tv') ...[
+            if (_details != null && _details!['next_episode_to_air'] != null)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.secondaryContainer.withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.secondary.withValues(alpha: 0.2)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.calendar_month, color: AppColors.secondary, size: 20),
+                            const SizedBox(width: 8),
+                            Text('Upcoming Episode',
+                                style: AppTextStyles.labelMedium.copyWith(color: AppColors.secondary)),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'S${_details!['next_episode_to_air']['season_number']} E${_details!['next_episode_to_air']['episode_number']} - ${_details!['next_episode_to_air']['name']}',
+                          style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.w600),
+                        ),
+                        if (_details!['next_episode_to_air']['air_date'] != null)
+                          Text(
+                            'Airing on ${_details!['next_episode_to_air']['air_date']}',
+                            style: AppTextStyles.bodyMedium.copyWith(color: AppColors.onSurfaceVariant),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
