@@ -298,6 +298,19 @@ class _CastDetailScreenState extends State<CastDetailScreen> {
     final unique = sorted.where((c) {
       final id = c['id'] as int?;
       if (id == null || seen.contains(id)) return false;
+
+      // Filter out guest/talk show appearances
+      final character = (c['character'] ?? '').toString().toLowerCase();
+      final genreIds = c['genre_ids'] as List?;
+      final isGuest = character.contains('self') ||
+          character.contains('guest') ||
+          character.contains('himself') ||
+          character.contains('herself');
+      final isTalkShow =
+          genreIds != null && (genreIds.contains(10767) || genreIds.contains(10763));
+
+      if (isGuest || isTalkShow) return false;
+
       seen.add(id);
       return c['poster_path'] != null;
     }).take(20).toList();
