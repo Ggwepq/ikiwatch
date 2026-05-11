@@ -7,11 +7,13 @@ import '../../../core/theme/app_text_styles.dart';
 class HeroBanner extends StatefulWidget {
   final List<MediaItem> items;
   final void Function(MediaItem item)? onWatch;
+  final void Function(MediaItem item)? onTapItem;
 
   const HeroBanner({
     super.key,
     required this.items,
     this.onWatch,
+    this.onTapItem,
   });
 
   @override
@@ -70,6 +72,7 @@ class _HeroBannerState extends State<HeroBanner> {
               return _HeroSlide(
                 item: item,
                 onWatch: () => widget.onWatch?.call(item),
+                onTapItem: () => widget.onTapItem?.call(item),
               );
             },
           ),
@@ -101,8 +104,9 @@ class _HeroBannerState extends State<HeroBanner> {
 class _HeroSlide extends StatelessWidget {
   final MediaItem item;
   final VoidCallback? onWatch;
+  final VoidCallback? onTapItem;
 
-  const _HeroSlide({required this.item, this.onWatch});
+  const _HeroSlide({required this.item, this.onWatch, this.onTapItem});
 
   @override
   Widget build(BuildContext context) {
@@ -110,9 +114,11 @@ class _HeroSlide extends StatelessWidget {
         ? item.backdropUrl
         : item.posterUrl;
 
-    return Stack(
-      fit: StackFit.expand,
-      children: [
+    return GestureDetector(
+      onTap: onTapItem,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
         if (imageUrl.isNotEmpty)
           Image.network(imageUrl, fit: BoxFit.cover,
             errorBuilder: (_, __, ___) =>
@@ -208,6 +214,7 @@ class _HeroSlide extends StatelessWidget {
           ),
         ),
       ],
+      ),
     );
   }
 }

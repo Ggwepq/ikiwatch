@@ -7,12 +7,14 @@ class ContentCarousel extends StatelessWidget {
   final String title;
   final List<MediaItem> items;
   final void Function(MediaItem item)? onItemTap;
+  final VoidCallback? onSeeAll;
 
   const ContentCarousel({
     super.key,
     required this.title,
     required this.items,
     this.onItemTap,
+    this.onSeeAll,
   });
 
   @override
@@ -20,7 +22,7 @@ class ContentCarousel extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SectionHeader(title: title, onSeeAll: () {}),
+        SectionHeader(title: title, onSeeAll: onSeeAll ?? () {}),
         const SizedBox(height: 16),
         SizedBox(
           height: 260,
