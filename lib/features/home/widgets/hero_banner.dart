@@ -59,8 +59,8 @@ class _HeroBannerState extends State<HeroBanner> {
     return Column(
       children: [
         // Carousel
-        AspectRatio(
-          aspectRatio: 16 / 14,
+        SizedBox(
+          height: 450,
           child: PageView.builder(
             controller: _pageController,
             itemCount: _displayItems.length,

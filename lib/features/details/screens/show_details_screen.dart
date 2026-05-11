@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/models/media_item.dart';
 import '../../../core/services/tmdb_service.dart';
+import '../../../core/services/peachify_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../player/screens/player_screen.dart';
@@ -79,7 +80,7 @@ class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
         slivers: [
           // Hero app bar
           SliverAppBar(
-            expandedHeight: 340,
+            expandedHeight: 450,
             pinned: true,
             backgroundColor: AppColors.surface,
             foregroundColor: AppColors.primary,
@@ -185,25 +186,55 @@ class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
                       const SizedBox(height: 20),
 
                       // Watch button
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton.icon(
-                          onPressed: m.mediaType == 'movie'
-                              ? _playMovie
-                              : (_episodes.isNotEmpty
-                                  ? () => _playEpisode(
-                                      _selectedSeason,
-                                      _episodes.first['episode_number'] ?? 1,
-                                      _episodes.first['name'] ?? '')
-                                  : null),
-                          icon: const Icon(Icons.play_arrow),
-                          label: Text(m.mediaType == 'movie'
-                              ? 'WATCH NOW'
-                              : 'WATCH LATEST EPISODE'),
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                          ),
-                        ),
+                      AnimatedBuilder(
+                        animation: PeachifyService.instance,
+                        builder: (context, _) {
+                          final prog = PeachifyService.instance.getProgress(m.id.toString());
+                          bool hasProgress = false;
+                          String btnText = m.mediaType == 'movie' ? 'WATCH NOW' : 'WATCH LATEST EPISODE';
+                          
+                          if (prog != null) {
+                            if (m.mediaType == 'movie' && prog['progress'] != null) {
+                              final watched = prog['progress']['watched'] ?? 0;
+                              final duration = prog['progress']['duration'] ?? 1;
+                              if (watched > 0 && (watched / duration) < 0.95) {
+                                hasProgress = true;
+                                btnText = 'RESUME';
+                              }
+                            } else if (m.mediaType == 'tv' && prog['last_season_watched'] != null) {
+                              hasProgress = true;
+                              btnText = 'CONTINUE S${prog['last_season_watched']} E${prog['last_episode_watched']}';
+                            }
+                          }
+
+                          return SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              onPressed: m.mediaType == 'movie'
+                                  ? _playMovie
+                                  : (hasProgress
+                                      ? () => _playEpisode(
+                                            int.tryParse(prog?['last_season_watched']?.toString() ?? '1') ?? 1,
+                                            int.tryParse(prog?['last_episode_watched']?.toString() ?? '1') ?? 1,
+                                            '',
+                                          )
+                                      : (_episodes.isNotEmpty
+                                          ? () => _playEpisode(
+                                                _selectedSeason,
+                                                _episodes.first['episode_number'] ?? 1,
+                                                _episodes.first['name'] ?? '',
+                                              )
+                                          : null)),
+                              icon: Icon(hasProgress ? Icons.play_circle_filled : Icons.play_arrow),
+                              label: Text(btnText),
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                backgroundColor: hasProgress ? AppColors.secondary : AppColors.primary,
+                                foregroundColor: hasProgress ? AppColors.onSecondary : AppColors.onPrimary,
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),

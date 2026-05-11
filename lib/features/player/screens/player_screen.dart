@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import '../../../core/services/vidsrc_service.dart';
+import '../../../core/services/peachify_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
-import 'native_player_screen.dart';
 
 class PlayerScreen extends StatefulWidget {
   final int tmdbId;
@@ -28,11 +27,8 @@ class PlayerScreen extends StatefulWidget {
 
 class _PlayerScreenState extends State<PlayerScreen> {
   InAppWebViewController? webViewController;
-  int _currentApi = VidsrcService.api1;
   bool _loading = true;
   bool _hasError = false;
-  int _errorCount = 0;
-  bool _foundStream = false;
 
   @override
   void initState() {
@@ -47,49 +43,21 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
   @override
   void dispose() {
-    if (!_foundStream) {
-      SystemChrome.setPreferredOrientations(DeviceOrientation.values);
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    }
+    SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     super.dispose();
   }
 
   String _buildUrl() {
     if (widget.mediaType == 'movie') {
-      return VidsrcService.movieUrl(tmdbId: widget.tmdbId, apiVersion: _currentApi);
+      return PeachifyService.instance.buildMovieUrl(widget.tmdbId.toString());
     } else {
-      return VidsrcService.tvUrl(
-        tmdbId: widget.tmdbId,
-        season: widget.season ?? 1,
-        episode: widget.episode ?? 1,
-        apiVersion: _currentApi,
+      return PeachifyService.instance.buildTvUrl(
+        widget.tmdbId.toString(),
+        widget.season ?? 1,
+        widget.episode ?? 1,
       );
     }
-  }
-
-  void _switchApi() {
-    setState(() {
-      _currentApi = VidsrcService.fallbackApi(_currentApi);
-      _loading = true;
-      _hasError = false;
-    });
-    webViewController?.loadUrl(urlRequest: URLRequest(url: WebUri(_buildUrl())));
-  }
-
-  void _onStreamFound(String url) {
-    if (_foundStream) return;
-    _foundStream = true;
-    
-    // Pause the webview player since we are opening the native one
-    webViewController?.evaluateJavascript(source: "document.querySelectorAll('video').forEach(v => v.pause());");
-
-    Navigator.of(context).pushReplacement(MaterialPageRoute(
-      builder: (_) => NativePlayerScreen(
-        streamUrl: url,
-        title: widget.title,
-        mediaType: widget.mediaType,
-      ),
-    ));
   }
 
   @override
@@ -107,47 +75,6 @@ class _PlayerScreenState extends State<PlayerScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        actions: [
-          PopupMenuButton<int>(
-            icon: const Icon(Icons.settings, color: Colors.white70, size: 20),
-            color: const Color(0xFF1E1E1E),
-            onSelected: (api) {
-              if (api != _currentApi) {
-                _errorCount = 0;
-                setState(() => _currentApi = api);
-                webViewController?.loadUrl(urlRequest: URLRequest(url: WebUri(_buildUrl())));
-              }
-            },
-            itemBuilder: (_) => [
-              PopupMenuItem(
-                value: VidsrcService.api1,
-                child: Row(
-                  children: [
-                    if (_currentApi == VidsrcService.api1)
-                      const Icon(Icons.check, color: Colors.green, size: 18)
-                    else
-                      const SizedBox(width: 18),
-                    const SizedBox(width: 8),
-                    const Text('API 1 (Multi Server)', style: TextStyle(color: Colors.white, fontSize: 14)),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: VidsrcService.api3,
-                child: Row(
-                  children: [
-                    if (_currentApi == VidsrcService.api3)
-                      const Icon(Icons.check, color: Colors.green, size: 18)
-                    else
-                      const SizedBox(width: 18),
-                    const SizedBox(width: 8),
-                    const Text('API 3 (Multi Embeds)', style: TextStyle(color: Colors.white, fontSize: 14)),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
       ),
       body: Stack(
         children: [
@@ -156,42 +83,62 @@ class _PlayerScreenState extends State<PlayerScreen> {
               initialUrlRequest: URLRequest(url: WebUri(_buildUrl())),
               initialSettings: InAppWebViewSettings(
                 mediaPlaybackRequiresUserGesture: false,
-                useShouldInterceptRequest: true,
-                useOnLoadResource: true,
                 transparentBackground: true,
+                javaScriptEnabled: true,
+                allowsInlineMediaPlayback: true,
+                supportMultipleWindows: true,
+                javaScriptCanOpenWindowsAutomatically: false,
+                useShouldOverrideUrlLoading: true,
               ),
+              onCreateWindow: (controller, createWindowAction) async {
+                // Return true to indicate we handled the window creation
+                // Since we don't actually create a window, this blocks the popup!
+                return true;
+              },
+              shouldOverrideUrlLoading: (controller, navigationAction) async {
+                // Block the main frame from being hijacked by ads
+                if (navigationAction.isForMainFrame) {
+                  final uri = navigationAction.request.url;
+                  if (uri != null && !uri.host.contains('peachify.top')) {
+                    return NavigationActionPolicy.CANCEL;
+                  }
+                }
+                return NavigationActionPolicy.ALLOW;
+              },
               onWebViewCreated: (controller) {
                 webViewController = controller;
+                controller.addJavaScriptHandler(
+                  handlerName: 'peachifyHandler',
+                  callback: (args) {
+                    if (args.isNotEmpty) {
+                      final payload = args[0];
+                      if (payload != null && payload['type'] == 'MEDIA_DATA') {
+                        final data = payload['data'];
+                        if (data != null && data is Map) {
+                          PeachifyService.instance.saveProgress(Map<String, dynamic>.from(data));
+                        }
+                      }
+                    }
+                  },
+                );
               },
               onLoadStart: (controller, url) {
                 if (mounted) setState(() => _loading = true);
               },
-              onLoadStop: (controller, url) {
+              onLoadStop: (controller, url) async {
+                // Inject message listener
+                await controller.evaluateJavascript(source: """
+                  window.addEventListener('message', function(event) {
+                    if (event.origin !== 'https://peachify.top') return;
+                    window.flutter_inappwebview.callHandler('peachifyHandler', event.data);
+                  });
+                """);
                 if (mounted) setState(() { _loading = false; _hasError = false; });
-              },
-              onLoadResource: (controller, resource) {
-                if (resource.url != null && resource.url.toString().contains('.m3u8')) {
-                  _onStreamFound(resource.url.toString());
-                }
-              },
-              shouldInterceptRequest: (controller, request) async {
-                if (request.url.toString().contains('.m3u8')) {
-                  // We can't navigate from here because it's not the main thread, but we can call it.
-                  // Wait, actually shouldInterceptRequest might run on a background thread on Android.
-                  // We use Future.microtask to ensure it runs on UI thread.
-                  Future.microtask(() => _onStreamFound(request.url.toString()));
-                }
-                return null; // Let the request continue so the web player can play it as a fallback
               },
               onReceivedError: (controller, request, error) {
                 if (request.isForMainFrame ?? false) {
                   if (mounted) {
-                    _errorCount++;
-                    if (_errorCount <= 1) {
-                      _switchApi();
-                    } else {
-                      setState(() { _loading = false; _hasError = true; });
-                    }
+                    setState(() { _loading = false; _hasError = true; });
                   }
                 }
               },
@@ -206,7 +153,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                   children: [
                     const CircularProgressIndicator(color: AppColors.primaryFixed),
                     const SizedBox(height: 16),
-                    Text('Intercepting native stream...', style: const TextStyle(color: Colors.white70, fontSize: 14)),
+                    Text('Loading player...', style: const TextStyle(color: Colors.white70, fontSize: 14)),
                   ],
                 ),
               ),
@@ -222,14 +169,10 @@ class _PlayerScreenState extends State<PlayerScreen> {
                     const Icon(Icons.error_outline, color: Colors.white38, size: 48),
                     const SizedBox(height: 16),
                     const Text('Failed to load stream', style: TextStyle(color: Colors.white, fontSize: 16)),
-                    const SizedBox(height: 8),
-                    const Text('Tried API 1 and API 3', style: TextStyle(color: Colors.white54, fontSize: 13)),
                     const SizedBox(height: 24),
                     ElevatedButton.icon(
                       onPressed: () {
-                        _errorCount = 0;
                         setState(() {
-                          _currentApi = VidsrcService.api1;
                           _hasError = false;
                           _loading = true;
                         });

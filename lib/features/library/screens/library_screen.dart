@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../core/models/content_filter.dart';
 import '../../../core/models/media_item.dart';
 import '../../../core/services/tmdb_service.dart';
+import '../../../core/services/peachify_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/content_card.dart';
@@ -112,6 +113,69 @@ class _LibraryScreenState extends State<LibraryScreen>
           children: [
             const SizedBox(height: 24),
 
+            // Continue Watching section
+            AnimatedBuilder(
+              animation: PeachifyService.instance,
+              builder: (context, _) {
+                final progressList = PeachifyService.instance.getAllProgress();
+                if (progressList.isEmpty) return const SizedBox.shrink();
+
+                final continueWatchingItems = progressList.map((p) {
+                  return MediaItem(
+                    id: p['id'] ?? 0,
+                    title: p['title'] ?? 'Unknown',
+                    overview: '',
+                    posterPath: p['poster_path'] ?? '',
+                    backdropPath: p['backdrop_path'] ?? p['poster_path'] ?? '',
+                    mediaType: p['type'] == 'tv' ? 'tv' : 'movie',
+                    voteAverage: 0.0,
+                  );
+                }).toList();
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Text('Continue Watching',
+                          style: AppTextStyles.headlineMedium
+                              .copyWith(color: AppColors.primary, fontSize: 28)),
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      height: 190,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        itemCount: continueWatchingItems.length,
+                        separatorBuilder: (_, __) => const SizedBox(width: 16),
+                        itemBuilder: (context, index) {
+                          final item = continueWatchingItems[index];
+                          // Calculate subtitle
+                          String subtitle = item.mediaType == 'movie' ? 'Movie' : 'TV Series';
+                          final p = progressList[index];
+                          if (p['type'] == 'tv' && p['last_season_watched'] != null) {
+                            subtitle = 'S${p['last_season_watched']} E${p['last_episode_watched']}';
+                          } else if (p['type'] == 'movie' && p['progress'] != null) {
+                            final w = p['progress']['watched'] ?? 0;
+                            final d = p['progress']['duration'] ?? 1;
+                            subtitle = '${((w / d) * 100).toInt()}% watched';
+                          }
+
+                          return _WideCard(
+                            item: item, 
+                            customSubtitle: subtitle,
+                            onTap: () => _openDetails(item)
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                  ],
+                );
+              },
+            ),
+
             // Recommendations header
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -221,7 +285,8 @@ class _LibraryScreenState extends State<LibraryScreen>
 class _WideCard extends StatelessWidget {
   final MediaItem item;
   final VoidCallback? onTap;
-  const _WideCard({required this.item, this.onTap});
+  final String? customSubtitle;
+  const _WideCard({required this.item, this.onTap, this.customSubtitle});
 
   @override
   Widget build(BuildContext context) {
@@ -247,7 +312,7 @@ class _WideCard extends StatelessWidget {
                 style: AppTextStyles.labelMedium.copyWith(fontSize: 15),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis),
-            Text(item.subtitle,
+            Text(customSubtitle ?? item.subtitle,
                 style: AppTextStyles.bodyMedium
                     .copyWith(fontSize: 13, color: AppColors.onSurfaceVariant)),
           ],
