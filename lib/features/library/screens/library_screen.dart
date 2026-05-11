@@ -6,6 +6,7 @@ import '../../../core/services/peachify_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/content_card.dart';
+import '../../../core/widgets/continue_watching_card.dart';
 import '../../details/screens/show_details_screen.dart';
 
 class LibraryScreen extends StatefulWidget {
@@ -94,13 +95,6 @@ class _LibraryScreenState extends State<LibraryScreen>
       appBar: AppBar(
         title: Text('IKIWATCH',
             style: AppTextStyles.brandTitle.copyWith(color: AppColors.primary)),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.search, color: AppColors.onSurfaceVariant),
-            onPressed: () {},
-          ),
-          const SizedBox(width: 8),
-        ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(0.5),
           child: Container(height: 0.5, color: AppColors.outlineVariant),
@@ -154,17 +148,30 @@ class _LibraryScreenState extends State<LibraryScreen>
                           // Calculate subtitle
                           String subtitle = item.mediaType == 'movie' ? 'Movie' : 'TV Series';
                           final p = progressList[index];
+                          double progressValue = 0.0;
+                          
                           if (p['type'] == 'tv' && p['last_season_watched'] != null) {
                             subtitle = 'S${p['last_season_watched']} E${p['last_episode_watched']}';
+                            final epKey = 's${p['last_season_watched']}e${p['last_episode_watched']}';
+                            if (p['show_progress'] != null && p['show_progress'][epKey] != null) {
+                               final epProg = p['show_progress'][epKey]['progress'];
+                               if (epProg != null) {
+                                 final w = epProg['watched'] ?? 0;
+                                 final d = epProg['duration'] ?? 1;
+                                 progressValue = (w / d).clamp(0.0, 1.0);
+                               }
+                            }
                           } else if (p['type'] == 'movie' && p['progress'] != null) {
                             final w = p['progress']['watched'] ?? 0;
                             final d = p['progress']['duration'] ?? 1;
-                            subtitle = '${((w / d) * 100).toInt()}% watched';
+                            progressValue = (w / d).clamp(0.0, 1.0);
+                            subtitle = '${(progressValue * 100).toInt()}% watched';
                           }
 
-                          return _WideCard(
+                          return ContinueWatchingCard(
                             item: item, 
-                            customSubtitle: subtitle,
+                            subtitle: subtitle,
+                            progress: progressValue,
                             onTap: () => _openDetails(item)
                           );
                         },
@@ -285,8 +292,7 @@ class _LibraryScreenState extends State<LibraryScreen>
 class _WideCard extends StatelessWidget {
   final MediaItem item;
   final VoidCallback? onTap;
-  final String? customSubtitle;
-  const _WideCard({required this.item, this.onTap, this.customSubtitle});
+  const _WideCard({required this.item, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -312,7 +318,7 @@ class _WideCard extends StatelessWidget {
                 style: AppTextStyles.labelMedium.copyWith(fontSize: 15),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis),
-            Text(customSubtitle ?? item.subtitle,
+            Text(item.subtitle,
                 style: AppTextStyles.bodyMedium
                     .copyWith(fontSize: 13, color: AppColors.onSurfaceVariant)),
           ],
@@ -321,3 +327,4 @@ class _WideCard extends StatelessWidget {
     );
   }
 }
+
