@@ -136,4 +136,17 @@ class TmdbService {
     final data = await _get('/tv/airing_today');
     return _parseResults(data, forceMediaType: 'tv');
   }
+
+  // ── Airing Today (K-Dramas) ──
+  static Future<List<MediaItem>> getKdramasAiringToday() async {
+    final today = DateTime.now();
+    final todayStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+    final data = await _get('/discover/tv', {
+      'with_origin_country': 'KR',
+      'with_genres': '18',
+      'air_date.gte': todayStr,
+      'air_date.lte': todayStr,
+    });
+    return _parseResults(data, forceMediaType: 'tv');
+  }
 }

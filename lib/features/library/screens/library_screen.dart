@@ -111,7 +111,17 @@ class _LibraryScreenState extends State<LibraryScreen>
             AnimatedBuilder(
               animation: PeachifyService.instance,
               builder: (context, _) {
-                final progressList = PeachifyService.instance.getAllProgress();
+                var progressList = PeachifyService.instance.getAllProgress();
+                
+                // Filter based on active tab
+                if (_filter == ContentFilter.movie) {
+                  progressList = progressList.where((p) => p['type'] == 'movie').toList();
+                } else if (_filter == ContentFilter.tv) {
+                  progressList = progressList.where((p) => p['type'] == 'tv').toList();
+                } else if (_filter == ContentFilter.kdrama) {
+                  progressList = progressList.where((p) => p['type'] == 'tv' && p['is_kdrama'] == true).toList();
+                }
+
                 if (progressList.isEmpty) return const SizedBox.shrink();
 
                 final continueWatchingItems = progressList.map((p) {
@@ -123,6 +133,7 @@ class _LibraryScreenState extends State<LibraryScreen>
                     backdropPath: p['backdrop_path'] ?? p['poster_path'] ?? '',
                     mediaType: p['type'] == 'tv' ? 'tv' : 'movie',
                     voteAverage: 0.0,
+                    isExplicitKdrama: p['is_kdrama'] == true,
                   );
                 }).toList();
 

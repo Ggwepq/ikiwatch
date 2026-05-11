@@ -45,6 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
         TmdbService.getKdramas(sortBy: 'vote_average.desc'),
         TmdbService.getKdramas(sortBy: 'first_air_date.desc'),
         TmdbService.getKdramas(sortBy: 'popularity.asc'), // As "upcoming" fallback
+        TmdbService.getKdramasAiringToday(),
       ]);
       if (!mounted) return;
       setState(() {
@@ -52,7 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _topRated = results[1];
         _newReleases = results[2];
         _upcoming = results[3];
-        _airingToday = [];
+        _airingToday = results[4];
         _popularKdramas = []; // Already showing kdramas
         _loading = false;
       });
@@ -91,6 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
         tmdbId: item.id,
         title: item.title,
         mediaType: item.mediaType,
+        isKdrama: item.isKdrama || _filter == ContentFilter.kdrama,
       )),
     );
   }
@@ -181,8 +183,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Filter based on active tab
                   if (_filter == ContentFilter.movie) {
                     progressList = progressList.where((p) => p['type'] == 'movie').toList();
-                  } else if (_filter == ContentFilter.tv || _filter == ContentFilter.kdrama) {
+                  } else if (_filter == ContentFilter.tv) {
                     progressList = progressList.where((p) => p['type'] == 'tv').toList();
+                  } else if (_filter == ContentFilter.kdrama) {
+                    progressList = progressList.where((p) => p['type'] == 'tv' && p['is_kdrama'] == true).toList();
                   }
 
                   if (progressList.isEmpty) return const SizedBox.shrink();
@@ -196,6 +200,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       backdropPath: p['backdrop_path'] ?? p['poster_path'] ?? '',
                       mediaType: p['type'] == 'tv' ? 'tv' : 'movie',
                       voteAverage: 0.0,
+                      isExplicitKdrama: p['is_kdrama'] == true,
                     );
                   }).toList();
 
@@ -308,8 +313,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
 
-            // Airing Today (TV only)
-            if (_airingToday.isNotEmpty) ...[
+            // Airing Today (TV only or Kdrama)
+            if (_airingToday.isNotEmpty && (_filter == ContentFilter.tv || _filter == ContentFilter.kdrama)) ...[
               const SliverToBoxAdapter(child: SizedBox(height: 32)),
               SliverToBoxAdapter(
                 child: ContentCarousel(

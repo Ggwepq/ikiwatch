@@ -12,6 +12,8 @@ class MediaItem {
   final String? originCountry;
   final int? numberOfSeasons;
   final int? numberOfEpisodes;
+  final Map<String, dynamic>? nextEpisodeToAir;
+  final bool _isExplicitKdrama;
 
   const MediaItem({
     required this.id,
@@ -26,7 +28,9 @@ class MediaItem {
     this.originCountry,
     this.numberOfSeasons,
     this.numberOfEpisodes,
-  });
+    this.nextEpisodeToAir,
+    bool isExplicitKdrama = false,
+  }) : _isExplicitKdrama = isExplicitKdrama;
 
   String get posterUrl =>
       posterPath != null ? 'https://image.tmdb.org/t/p/w500$posterPath' : '';
@@ -51,6 +55,7 @@ class MediaItem {
   }
 
   bool get isKdrama {
+    if (_isExplicitKdrama) return true;
     return mediaType == 'tv' &&
         genreIds.contains(18) &&
         originCountry == 'KR';
@@ -81,6 +86,8 @@ class MediaItem {
       originCountry: country,
       numberOfSeasons: json['number_of_seasons'],
       numberOfEpisodes: json['number_of_episodes'],
+      nextEpisodeToAir: json['next_episode_to_air'],
+      isExplicitKdrama: json['is_kdrama'] == true,
     );
   }
 }

@@ -10,6 +10,7 @@ class PlayerScreen extends StatefulWidget {
   final String mediaType; // 'movie' or 'tv'
   final int? season;
   final int? episode;
+  final bool isKdrama;
 
   const PlayerScreen({
     super.key,
@@ -18,6 +19,7 @@ class PlayerScreen extends StatefulWidget {
     required this.mediaType,
     this.season,
     this.episode,
+    this.isKdrama = false,
   });
 
   @override
@@ -101,7 +103,9 @@ class _PlayerScreenState extends State<PlayerScreen> {
                       if (payload != null && payload['type'] == 'MEDIA_DATA') {
                         final data = payload['data'];
                         if (data != null && data is Map) {
-                          PeachifyService.instance.saveProgress(Map<String, dynamic>.from(data));
+                          final dataMap = Map<String, dynamic>.from(data);
+                          dataMap['is_kdrama'] = widget.isKdrama;
+                          PeachifyService.instance.saveProgress(dataMap);
                         }
                       }
                     }
