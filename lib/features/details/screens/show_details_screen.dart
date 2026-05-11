@@ -23,6 +23,8 @@ class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
   List<Map<String, dynamic>> _reviews = [];
   List<MediaItem> _recommendations = [];
   int _selectedSeason = 1;
+  bool _isTrailerPlaying = false;
+  YoutubePlayerController? _trailerController;
 
   bool _hasUpcomingEpisode() {
     if (_details == null || _details!['next_episode_to_air'] == null) return false;
@@ -83,11 +85,25 @@ class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
   void _openTrailer() {
     final videoId = _getTrailerUrl();
     if (videoId != null) {
-      showDialog(
-        context: context,
-        builder: (context) => _TrailerDialog(videoId: videoId),
-      );
+      setState(() {
+        _isTrailerPlaying = true;
+        _trailerController = YoutubePlayerController.fromVideoId(
+          videoId: videoId,
+          autoPlay: true,
+          params: const YoutubePlayerParams(
+            showFullscreenButton: true,
+            mute: false,
+            showControls: true,
+          ),
+        );
+      });
     }
+  }
+
+  @override
+  void dispose() {
+    _trailerController?.close();
+    super.dispose();
   }
 
   Future<void> _loadEpisodes(int season) async {
@@ -152,41 +168,71 @@ class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  if (m.backdropUrl.isNotEmpty)
-                    Image.network(m.backdropUrl, fit: BoxFit.cover,
-                        errorBuilder: (_, _a, _b) =>
-                            Container(color: AppColors.surfaceContainerHigh)),
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.transparent,
-                          AppColors.onSurface.withValues(alpha: 0.4),
-                        ],
-                      ),
-                    ),
-                  ),
-                  if (_getTrailerUrl() != null)
-                    Center(
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(40),
-                          onTap: _openTrailer,
-                          child: Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: AppColors.background.withValues(alpha: 0.7),
-                              shape: BoxShape.circle,
-                              border: Border.all(color: AppColors.primary.withValues(alpha: 0.5)),
+                  if (_isTrailerPlaying && _trailerController != null)
+                    Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        YoutubePlayer(controller: _trailerController!),
+                        Positioned(
+                          top: 10,
+                          right: 10,
+                          child: IconButton(
+                            icon: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withValues(alpha: 0.5),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.close, color: Colors.white, size: 20),
                             ),
-                            child: Icon(Icons.play_arrow, size: 40, color: AppColors.primary),
+                            onPressed: () {
+                              setState(() {
+                                _isTrailerPlaying = false;
+                                _trailerController?.close();
+                                _trailerController = null;
+                              });
+                            },
                           ),
+                        ),
+                      ],
+                    )
+                  else ...[
+                    if (m.backdropUrl.isNotEmpty)
+                      Image.network(m.backdropUrl, fit: BoxFit.cover,
+                          errorBuilder: (_, _a, _b) =>
+                              Container(color: AppColors.surfaceContainerHigh)),
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            AppColors.onSurface.withValues(alpha: 0.4),
+                          ],
                         ),
                       ),
                     ),
+                    if (_getTrailerUrl() != null)
+                      Center(
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(40),
+                            onTap: _openTrailer,
+                            child: Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: AppColors.background.withValues(alpha: 0.7),
+                                shape: BoxShape.circle,
+                                border: Border.all(color: AppColors.primary.withValues(alpha: 0.5)),
+                              ),
+                              child: Icon(Icons.play_arrow, size: 40, color: AppColors.primary),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ],
               ),
             ),
@@ -921,29 +967,6 @@ class _UserScoreGauge extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _TrailerDialog extends StatelessWidget {
-  final String videoId;
-  const _TrailerDialog({required this.videoId});
-
-  @override
-  Widget build(BuildContext context) {
-    final controller = YoutubePlayerController.fromVideoId(
-      videoId: videoId,
-      autoPlay: true,
-      params: const YoutubePlayerParams(showFullscreenButton: true),
-    );
-
-    return Dialog(
-      backgroundColor: Colors.black,
-      insetPadding: const EdgeInsets.all(16),
-      child: AspectRatio(
-        aspectRatio: 16 / 9,
-        child: YoutubePlayer(controller: controller),
       ),
     );
   }
