@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import '../../../core/models/media_item.dart';
 import '../../../core/services/tmdb_service.dart';
 import '../../../core/services/peachify_service.dart';
@@ -74,16 +74,19 @@ class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
     if (videos == null) return null;
     for (final v in videos) {
       if (v['type'] == 'Trailer' && v['site'] == 'YouTube') {
-        return 'https://www.youtube.com/watch?v=${v['key']}';
+        return v['key'];
       }
     }
     return null;
   }
 
-  Future<void> _openTrailer() async {
-    final url = _getTrailerUrl();
-    if (url != null) {
-      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+  void _openTrailer() {
+    final videoId = _getTrailerUrl();
+    if (videoId != null) {
+      showDialog(
+        context: context,
+        builder: (context) => _TrailerDialog(videoId: videoId),
+      );
     }
   }
 
@@ -434,11 +437,30 @@ class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
                   final ep = _episodes[index];
+                  final season = _selectedSeason;
+                  final episodeNum = ep['episode_number'] ?? 1;
+                  
+                  // Check if watched
+                  final prog = PeachifyService.instance.getProgress(m.id.toString());
+                  bool isWatched = false;
+                  if (prog != null && prog['show_progress'] != null) {
+                    final epKey = 's${season}e$episodeNum';
+                    final epProg = prog['show_progress'][epKey];
+                    if (epProg != null && epProg['progress'] != null) {
+                      final watched = epProg['progress']['watched'];
+                      final duration = epProg['progress']['duration'];
+                      if (watched != null && duration != null && (watched / duration) >= 0.1) {
+                        isWatched = true;
+                      }
+                    }
+                  }
+
                   return _EpisodeTile(
                     episode: ep,
+                    isWatched: isWatched,
                     onTap: () => _playEpisode(
-                      _selectedSeason,
-                      ep['episode_number'] ?? 1,
+                      season,
+                      episodeNum,
                       ep['name'] ?? '',
                     ),
                   );
@@ -476,7 +498,11 @@ class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => CastDetailScreen(personId: cast['id'], personName: cast['name'] ?? ''),
+                                builder: (_) => CastDetailScreen(
+                                  personId: cast['id'],
+                                  personName: cast['name'] ?? '',
+                                  profilePath: cast['profile_path'],
+                                ),
                               ),
                             );
                           },
@@ -548,58 +574,102 @@ class _ShowDetailsScreenState extends State<ShowDetailsScreen> {
                         final rating = authorDetails?['rating'];
                         final content = review['content'] ?? '';
                         
-                        return Container(
-                          width: 300,
-                          margin: const EdgeInsets.only(right: 16),
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: AppColors.surfaceContainerLow,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: AppColors.outlineVariant),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  CircleAvatar(
-                                    backgroundColor: AppColors.primaryContainer,
-                                    child: Text(
-                                      (review['author'] ?? 'U')[0].toUpperCase(),
-                                      style: AppTextStyles.labelMedium.copyWith(color: AppColors.onPrimaryContainer),
+                        return GestureDetector(
+                          onTap: () {
+                            showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              backgroundColor: Colors.transparent,
+                              builder: (context) => Container(
+                                height: MediaQuery.of(context).size.height * 0.7,
+                                decoration: BoxDecoration(
+                                  color: AppColors.surface,
+                                  borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      margin: const EdgeInsets.all(12),
+                                      width: 40, height: 4,
+                                      decoration: BoxDecoration(
+                                        color: AppColors.outlineVariant,
+                                        borderRadius: BorderRadius.circular(2),
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(review['author'] ?? 'User',
-                                            style: AppTextStyles.labelMedium.copyWith(fontWeight: FontWeight.bold),
-                                            maxLines: 1, overflow: TextOverflow.ellipsis),
-                                        if (rating != null)
-                                          Row(
-                                            children: [
-                                              Icon(Icons.star, size: 12, color: AppColors.primary),
-                                              const SizedBox(width: 4),
-                                              Text(rating.toString(), style: AppTextStyles.labelSmall),
-                                            ],
-                                          ),
-                                      ],
+                                    Expanded(
+                                      child: SingleChildScrollView(
+                                        padding: const EdgeInsets.all(24),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text('Review by ${review['author']}', style: AppTextStyles.headlineSmall),
+                                            const SizedBox(height: 16),
+                                            Text(content, style: AppTextStyles.bodyLarge.copyWith(height: 1.6)),
+                                            const SizedBox(height: 24),
+                                          ],
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              Expanded(
-                                child: Text(
-                                  content,
-                                  style: AppTextStyles.bodyMedium.copyWith(color: AppColors.onSurfaceVariant),
-                                  maxLines: 5,
-                                  overflow: TextOverflow.ellipsis,
+                                  ],
                                 ),
                               ),
-                            ],
+                            );
+                          },
+                          child: Container(
+                            width: 300,
+                            margin: const EdgeInsets.only(right: 16),
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: AppColors.surfaceContainerLow,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: AppColors.outlineVariant),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    CircleAvatar(
+                                      backgroundColor: AppColors.primaryContainer,
+                                      child: Text(
+                                        (review['author'] ?? 'U')[0].toUpperCase(),
+                                        style: AppTextStyles.labelMedium.copyWith(color: AppColors.onPrimaryContainer),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(review['author'] ?? 'User',
+                                              style: AppTextStyles.labelMedium.copyWith(fontWeight: FontWeight.bold),
+                                              maxLines: 1, overflow: TextOverflow.ellipsis),
+                                          if (rating != null)
+                                            Row(
+                                              children: [
+                                                Icon(Icons.star, size: 12, color: AppColors.primary),
+                                                const SizedBox(width: 4),
+                                                Text(rating.toString(), style: AppTextStyles.labelSmall),
+                                              ],
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                Expanded(
+                                  child: Text(
+                                    content,
+                                    style: AppTextStyles.bodyMedium.copyWith(color: AppColors.onSurfaceVariant),
+                                    maxLines: 5,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text('Read more', style: AppTextStyles.labelSmall.copyWith(color: AppColors.primary)),
+                              ],
+                            ),
                           ),
                         );
                       },
@@ -714,8 +784,9 @@ class _SeasonDropdown extends StatelessWidget {
 
 class _EpisodeTile extends StatelessWidget {
   final Map<String, dynamic> episode;
+  final bool isWatched;
   final VoidCallback? onTap;
-  const _EpisodeTile({required this.episode, this.onTap});
+  const _EpisodeTile({required this.episode, this.isWatched = false, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -728,8 +799,10 @@ class _EpisodeTile extends StatelessWidget {
         : '';
     final runtime = episode['runtime'];
 
-    return InkWell(
-      onTap: onTap,
+    return Opacity(
+      opacity: isWatched ? 0.4 : 1.0,
+      child: InkWell(
+        onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
         child: Column(
@@ -798,7 +871,8 @@ class _EpisodeTile extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ),
+   );
   }
 }
 
@@ -847,6 +921,29 @@ class _UserScoreGauge extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _TrailerDialog extends StatelessWidget {
+  final String videoId;
+  const _TrailerDialog({required this.videoId});
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = YoutubePlayerController.fromVideoId(
+      videoId: videoId,
+      autoPlay: true,
+      params: const YoutubePlayerParams(showFullscreenButton: true),
+    );
+
+    return Dialog(
+      backgroundColor: Colors.black,
+      insetPadding: const EdgeInsets.all(16),
+      child: AspectRatio(
+        aspectRatio: 16 / 9,
+        child: YoutubePlayer(controller: controller),
       ),
     );
   }
